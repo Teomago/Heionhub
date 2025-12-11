@@ -72,6 +72,8 @@ export interface Config {
     media: Media;
     members: Member;
     'invitation-codes': InvitationCode;
+    'financial-records': FinancialRecord;
+    tags: Tag;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -83,6 +85,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     members: MembersSelect<false> | MembersSelect<true>;
     'invitation-codes': InvitationCodesSelect<false> | InvitationCodesSelect<true>;
+    'financial-records': FinancialRecordsSelect<false> | FinancialRecordsSelect<true>;
+    tags: TagsSelect<false> | TagsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -235,6 +239,135 @@ export interface InvitationCode {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "financial-records".
+ */
+export interface FinancialRecord {
+  id: string;
+  /**
+   * Categorizes the record to calculate balances.
+   */
+  type: 'income' | 'expense' | 'saving';
+  /**
+   * The financial value of the record.
+   */
+  amount: number;
+  /**
+   * Organization tag (e.g., "Salary", "Food").
+   */
+  category: string;
+  /**
+   * Date of the transaction.
+   */
+  date: string;
+  /**
+   * Optional context or notes.
+   */
+  description?: string | null;
+  /**
+   * Links record to the logged-in user.
+   */
+  member: string | Member;
+  /**
+   * For Income: Adds to Wallet. For Expense: Deducts from Wallet. For Savings: If checked, moves money from Wallet to Savings (Net Balance decreases). If unchecked, adds to Savings from external source (Net Balance unaffected).
+   */
+  isFromBalance?: boolean | null;
+  /**
+   * Categorize this record.
+   */
+  tags?: (string | Tag)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags".
+ */
+export interface Tag {
+  id: string;
+  name: string;
+  /**
+   * Color for the tag badge (hex value)
+   */
+  color?: string | null;
+  /**
+   * Optional icon for the tag.
+   */
+  icon?:
+    | (
+        | 'home'
+        | 'food'
+        | 'car'
+        | 'utility'
+        | 'entertainment'
+        | 'health'
+        | 'education'
+        | 'shopping'
+        | 'travel'
+        | 'other'
+        | 'wallet'
+        | 'credit'
+        | 'laptop'
+        | 'coffee'
+        | 'gift'
+        | 'pill'
+        | 'gym'
+        | 'book'
+        | 'briefcase'
+        | 'bus'
+        | 'train'
+        | 'bike'
+        | 'fuel'
+        | 'wrench'
+        | 'hammer'
+        | 'paint'
+        | 'scissors'
+        | 'shirt'
+        | 'dollar'
+        | 'trending'
+        | 'piggy'
+        | 'coins'
+        | 'receipt'
+        | 'tag'
+        | 'phone'
+        | 'tv'
+        | 'game'
+        | 'camera'
+        | 'headphones'
+        | 'watch'
+        | 'pizza'
+        | 'beer'
+        | 'wine'
+        | 'icecream'
+        | 'cake'
+        | 'apple'
+        | 'carrot'
+        | 'fish'
+        | 'egg'
+        | 'soup'
+        | 'candy'
+        | 'popcorn'
+        | 'cookie'
+        | 'donut'
+        | 'croissant'
+        | 'rain'
+        | 'sun'
+        | 'moon'
+        | 'star'
+        | 'sparkles'
+        | 'trophy'
+        | 'award'
+        | 'medal'
+      )
+    | null;
+  /**
+   * Owner of the tag. Leave empty for System Tag (visible to all).
+   */
+  member?: (string | null) | Member;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -272,6 +405,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'invitation-codes';
         value: string | InvitationCode;
+      } | null)
+    | ({
+        relationTo: 'financial-records';
+        value: string | FinancialRecord;
+      } | null)
+    | ({
+        relationTo: 'tags';
+        value: string | Tag;
       } | null);
   globalSlug?: string | null;
   user:
@@ -403,6 +544,34 @@ export interface InvitationCodesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "financial-records_select".
+ */
+export interface FinancialRecordsSelect<T extends boolean = true> {
+  type?: T;
+  amount?: T;
+  category?: T;
+  date?: T;
+  description?: T;
+  member?: T;
+  isFromBalance?: T;
+  tags?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tags_select".
+ */
+export interface TagsSelect<T extends boolean = true> {
+  name?: T;
+  color?: T;
+  icon?: T;
+  member?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -472,6 +641,10 @@ export interface Invitation {
 export interface SiteSetting {
   id: string;
   title: string;
+  /**
+   * Maximum number of custom tags a member can create.
+   */
+  maxTagsPerMember?: number | null;
   description: string;
   ogImage?: (string | null) | Media;
   updatedAt?: string | null;
@@ -507,6 +680,7 @@ export interface InvitationsSelect<T extends boolean = true> {
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
   title?: T;
+  maxTagsPerMember?: T;
   description?: T;
   ogImage?: T;
   updatedAt?: T;

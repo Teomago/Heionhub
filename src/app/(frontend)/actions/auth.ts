@@ -101,3 +101,43 @@ export async function registerMember(formData: FormData, invitationCode: string)
     return { success: false, error: 'REGISTRATION_FAILED', message: 'Failed to create account.' }
   }
 }
+
+import { cookies } from 'next/headers'
+
+export async function login(formData: FormData) {
+  const payload = await getPayload({ config })
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+
+  try {
+    const result = await payload.login({
+      collection: 'members',
+      data: {
+        email,
+        password,
+      },
+    })
+
+    if (result.token) {
+      const cookieStore = await cookies()
+      cookieStore.set('payload-member-token', result.token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60, // 7 days
+      })
+      return { success: true }
+    }
+
+    return { success: false, error: 'LOGIN_FAILED', message: 'Invalid credentials.' }
+  } catch (error) {
+    return { success: false, error: 'LOGIN_FAILED', message: 'Invalid credentials.' }
+  }
+}
+
+export async function logout() {
+  const cookieStore = await cookies()
+  cookieStore.delete('payload-member-token')
+  return { success: true }
+}

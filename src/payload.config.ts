@@ -9,6 +9,8 @@ import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Members } from './collections/Members'
 import { InvitationCodes } from './collections/InvitationCodes'
+import { FinancialRecords } from './collections/FinancialRecords'
+import { Tags } from './collections/Tags'
 import { Home } from './globals/Home'
 import { Invitations } from './globals/Invitations'
 import { SiteSettings } from './globals/SiteSettings'
@@ -26,7 +28,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Members, InvitationCodes],
+  collections: [Users, Media, Members, InvitationCodes, FinancialRecords, Tags],
   globals: [Home, Invitations, SiteSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

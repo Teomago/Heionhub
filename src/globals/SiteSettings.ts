@@ -19,6 +19,14 @@ export const SiteSettings: GlobalConfig = {
               label: 'Site Title',
             },
             {
+              name: 'maxTagsPerMember',
+              type: 'number',
+              defaultValue: 30,
+              admin: {
+                description: 'Maximum number of custom tags a member can create.',
+              },
+            },
+            {
               name: 'description',
               type: 'textarea',
               required: true,
