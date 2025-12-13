@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -383,7 +384,7 @@ export default function FinancialRecordsClientPage({ initialRecords }: { initial
               <DialogTitle>Create Financial Record</DialogTitle>
               <DialogDescription>Add a new income, expense, or saving record.</DialogDescription>
             </DialogHeader>
-            <RecordFormFields />
+            {RecordFormFields()}
             <DialogFooter>
               <Button
                 onClick={handleCreateRecord}
@@ -542,7 +543,7 @@ export default function FinancialRecordsClientPage({ initialRecords }: { initial
             <DialogTitle>Edit Financial Record</DialogTitle>
             <DialogDescription>Update the record details.</DialogDescription>
           </DialogHeader>
-          <RecordFormFields />
+          {RecordFormFields()}
           <DialogFooter>
             <Button
               onClick={handleEditRecord}

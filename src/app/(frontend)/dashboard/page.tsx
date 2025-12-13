@@ -2,6 +2,8 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { cookies } from 'next/headers'
 import { FinancialSummary } from '@/components/financial-summary'
+import { getDailyFinancialData } from '../actions/financial-chart'
+import { DashboardInteractiveChart } from '@/components/charts/dashboard-interactive-chart'
 
 export default async function DashboardPage() {
   const payload = await getPayload({ config })
@@ -16,9 +18,11 @@ export default async function DashboardPage() {
         Authorization: `JWT ${token}`,
       }),
     })
-    const member = user as any
+    const member = user as { firstName?: string } | null
     name = member?.firstName || 'Member'
   }
+
+  const chartData = await getDailyFinancialData(undefined, undefined, 'all')
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
@@ -29,10 +33,7 @@ export default async function DashboardPage() {
 
       <FinancialSummary />
 
-      <div className="min-h-[50vh] flex-1 rounded-xl bg-neutral-900/20 border border-neutral-800 p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
-        <p className="text-muted-foreground">No recent transactions.</p>
-      </div>
+      <DashboardInteractiveChart data={chartData} />
     </div>
   )
 }

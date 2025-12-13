@@ -42,34 +42,6 @@ export function FinancialSummary() {
         : 0
       : ((netBalance - previousNet) / previousNet) * 100
 
-  const formatPercentage = (val: number) => {
-    const sign = val > 0 ? '+' : ''
-    return `${sign}${val.toFixed(1)}% from last month`
-  }
-
-  const Trend = ({ value, invert = false }: { value: number; invert?: boolean }) => {
-    if (isLoading) return null
-    // Standard: Green if > 0, Red if < 0.
-    // Invert (Expenses): Red if > 0, Green if < 0.
-
-    let _isGood = value > 0
-    if (invert) _isGood = !_isGood
-    if (value === 0) _isGood = true // Neutral
-
-    // Actually, "Expenses Up" is usually Bad (Red). "Expenses Down" is Good (Green).
-    // "Income Up" is Good (Green).
-
-    let colorClass = value > 0 ? 'text-emerald-500' : 'text-red-500' // Default Up=Green, Down=Red
-
-    if (invert) {
-      colorClass = value > 0 ? 'text-red-500' : 'text-emerald-500'
-    }
-
-    if (value === 0) colorClass = 'text-muted-foreground'
-
-    return <p className={`text-xs ${colorClass}`}>{formatPercentage(value)}</p>
-  }
-
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
@@ -114,4 +86,31 @@ export function FinancialSummary() {
       </Card>
     </div>
   )
+}
+
+const formatPercentage = (val: number) => {
+  const sign = val > 0 ? '+' : ''
+  return `${sign}${val.toFixed(1)}% from last month`
+}
+
+const Trend = ({ value, invert = false }: { value: number; invert?: boolean }) => {
+  // Standard: Green if > 0, Red if < 0.
+  // Invert (Expenses): Red if > 0, Green if < 0.
+
+  let _isGood = value > 0
+  if (invert) _isGood = !_isGood
+  if (value === 0) _isGood = true // Neutral
+
+  // Actually, "Expenses Up" is usually Bad (Red). "Expenses Down" is Good (Green).
+  // "Income Up" is Good (Green).
+
+  let colorClass = value > 0 ? 'text-emerald-500' : 'text-red-500' // Default Up=Green, Down=Red
+
+  if (invert) {
+    colorClass = value > 0 ? 'text-red-500' : 'text-emerald-500'
+  }
+
+  if (value === 0) colorClass = 'text-muted-foreground'
+
+  return <p className={`text-xs ${colorClass}`}>{formatPercentage(value)}</p>
 }

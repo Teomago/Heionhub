@@ -2,7 +2,7 @@
 
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { headers, cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 
 export async function getFinancialSummary() {
   const payload = await getPayload({ config })
@@ -29,8 +29,10 @@ export async function getFinancialSummary() {
 
   // Calculate date ranges
   const now = new Date()
-  const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-  const previousMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+  // Use UTC to ensure consistent boundaries regardless of server timezone
+  // Day 1 at 00:00:00 UTC
+  const currentMonthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth(), 1))
+  const previousMonthStart = new Date(Date.UTC(now.getFullYear(), now.getMonth() - 1, 1))
 
   // Fetch Current Month Records
   const { docs: currentDocs } = await payload.find({
@@ -57,7 +59,7 @@ export async function getFinancialSummary() {
     limit: 10000,
   })
 
-  const calculateTotals = (docs: any[]) => {
+  const calculateTotals = (docs: Array<{ type: string; amount: number; isFromBalance?: boolean | null }>) => {
     let income = 0
     let expenses = 0
     let savings = 0

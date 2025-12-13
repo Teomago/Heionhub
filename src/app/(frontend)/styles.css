@@ -82,6 +82,12 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
+    /* Specific Financial Colors */
+    --emerald-500: 158 64% 52%;
+    --red-500: 0 84% 60%;
+    --blue-500: 217 91% 60%;
+    --purple-500: 270 95% 75%;
+
     /* Sidebar - Match Main Theme */
     --sidebar: 0 0% 0%;
     --sidebar-foreground: 0 0% 100%;

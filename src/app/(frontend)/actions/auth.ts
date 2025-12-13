@@ -2,8 +2,6 @@
 
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
 
 export async function verifyInvitation(code: string) {
   const payload = await getPayload({ config })
@@ -131,7 +129,7 @@ export async function login(formData: FormData) {
     }
 
     return { success: false, error: 'LOGIN_FAILED', message: 'Invalid credentials.' }
-  } catch (error) {
+  } catch (_error) {
     return { success: false, error: 'LOGIN_FAILED', message: 'Invalid credentials.' }
   }
 }

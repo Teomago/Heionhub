@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -340,7 +341,7 @@ export default function TagsPage() {
                 Add a custom tag to categorize your financial records.
               </DialogDescription>
             </DialogHeader>
-            <TagFormFields />
+            {TagFormFields()}
             <DialogFooter>
               {createMutation.error && (
                 <p className="text-sm text-red-500 mb-2">
@@ -493,7 +494,7 @@ export default function TagsPage() {
             <DialogTitle>Edit Tag</DialogTitle>
             <DialogDescription>Update the tag details.</DialogDescription>
           </DialogHeader>
-          <TagFormFields />
+          {TagFormFields()}
           <DialogFooter>
             <Button
               onClick={handleEditTag}

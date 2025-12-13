@@ -26,6 +26,7 @@ export async function createTag(data: { name: string; icon?: string; color?: str
 
     // Create tag - the beforeChange hook will handle limit enforcement
     // Filter out 'none' or empty values
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cleanData: any = {
       name: data.name,
       member: user.id,
@@ -43,8 +44,9 @@ export async function createTag(data: { name: string; icon?: string; color?: str
     })
 
     return { success: true, tag }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to create tag' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to create tag'
+    return { success: false, error: message }
   }
 }
 
@@ -91,8 +93,9 @@ export async function deleteTag(tagId: string) {
     })
 
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to delete tag' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to delete tag'
+    return { success: false, error: message }
   }
 }
 
@@ -134,7 +137,8 @@ export async function updateTag(
       return { success: false, error: 'Cannot edit system tags or tags owned by others' }
     }
 
-    // Filter out 'none' or empty values
+    // Filter out 'none' values
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const cleanData: any = {}
     if (data.name) cleanData.name = data.name
     if (data.icon && data.icon !== 'none') cleanData.icon = data.icon
@@ -149,8 +153,9 @@ export async function updateTag(
     })
 
     return { success: true, tag: updated }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to update tag' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update tag'
+    return { success: false, error: message }
   }
 }
 
@@ -204,10 +209,11 @@ export async function getTags() {
       limit,
       count: userTagCount,
     }
-  } catch (error: any) {
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to fetch tags'
     return {
       success: false,
-      error: error.message || 'Failed to fetch tags',
+      error: message,
       tags: [],
       limit: 30,
       count: 0,

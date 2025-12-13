@@ -2,7 +2,7 @@
 
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { headers, cookies } from 'next/headers'
+import { cookies } from 'next/headers'
 
 export async function createRecord(data: {
   type: 'income' | 'expense' | 'saving'
@@ -42,8 +42,9 @@ export async function createRecord(data: {
     })
 
     return { success: true, record }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to create record' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to create record'
+    return { success: false, error: message }
   }
 }
 
@@ -101,8 +102,9 @@ export async function updateRecord(
     })
 
     return { success: true, record: updated }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to update record' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to update record'
+    return { success: false, error: message }
   }
 }
 
@@ -149,7 +151,8 @@ export async function deleteRecord(recordId: string) {
     })
 
     return { success: true }
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Failed to delete record' }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to delete record'
+    return { success: false, error: message }
   }
 }

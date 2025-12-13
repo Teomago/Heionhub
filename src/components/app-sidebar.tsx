@@ -65,7 +65,7 @@ const data = {
 export function AppSidebar({
   user,
   ...props
-}: React.ComponentProps<typeof Sidebar> & { user: any }) {
+}: React.ComponentProps<typeof Sidebar> & { user: { firstName?: string; lastName?: string; email?: string } | null }) {
   // Use passed user or fallback (though auth check ensures user exists)
   const userData = {
     name: user?.firstName ? `${user.firstName} ${user.lastName}` : 'Member',

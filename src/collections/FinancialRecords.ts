@@ -85,6 +85,7 @@ export const FinancialRecords: CollectionConfig = {
       type: 'relationship',
       relationTo: 'tags',
       hasMany: true,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       filterOptions: ({ user }: any) => {
         if (!user) return true
         // Allow system tags (no member) OR tags owned by this user
