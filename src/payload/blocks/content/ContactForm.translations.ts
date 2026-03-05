@@ -1,0 +1,56 @@
+import { defineTranslations } from '@/payload/i18n/config'
+
+export const translations = defineTranslations({
+  en: {
+    blocks: {
+      contactForm: {
+        label: 'Contact Form',
+        heading: 'Heading',
+        body: 'Body',
+        fields: 'Form Fields',
+        fieldName: 'Field Name',
+        fieldType: 'Field Type',
+        fieldTypeText: 'Text',
+        fieldTypeEmail: 'Email',
+        fieldTypeTel: 'Phone',
+        fieldTypeTextarea: 'Textarea',
+        fieldTypeSelect: 'Select',
+        fieldRequired: 'Required',
+        fieldPlaceholder: 'Placeholder',
+        fieldOptions: 'Options',
+        optionLabel: 'Label',
+        optionValue: 'Value',
+        submitLabel: 'Submit Button Label',
+        successMessage: 'Success Message',
+        endpoint: 'Submission Endpoint',
+        endpointDescription: 'URL to POST form data to (optional — logs to console if empty)',
+      },
+    },
+  },
+  de: {
+    blocks: {
+      contactForm: {
+        label: 'Kontaktformular',
+        heading: 'Überschrift',
+        body: 'Inhalt',
+        fields: 'Formularfelder',
+        fieldName: 'Feldname',
+        fieldType: 'Feldtyp',
+        fieldTypeText: 'Text',
+        fieldTypeEmail: 'E-Mail',
+        fieldTypeTel: 'Telefon',
+        fieldTypeTextarea: 'Textbereich',
+        fieldTypeSelect: 'Auswahl',
+        fieldRequired: 'Pflichtfeld',
+        fieldPlaceholder: 'Platzhalter',
+        fieldOptions: 'Optionen',
+        optionLabel: 'Bezeichnung',
+        optionValue: 'Wert',
+        submitLabel: 'Absenden-Button',
+        successMessage: 'Erfolgsmeldung',
+        endpoint: 'Endpunkt',
+        endpointDescription: 'URL für POST-Formular (optional – ohne URL wird in Konsole geloggt)',
+      },
+    },
+  },
+})

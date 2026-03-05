@@ -1,0 +1,83 @@
+/*
+ * Admin Utility Definitions — Reusable class patterns for Payload admin UI
+ *
+ * These use Payload's CSS variables to create consistent, theme-aware admin components.
+ */
+
+/* Standard Payload-styled input fields */
+@utility payload-input {
+  background-color: var(--theme-input-bg);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-s);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--theme-text);
+  transition: border-color 150ms ease;
+
+  &:focus {
+    outline: none;
+    border-color: var(--theme-elevation-800);
+  }
+}
+
+/* Card container */
+@utility payload-card {
+  background-color: var(--theme-elevation-50);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-s);
+  padding: var(--base);
+}
+
+/* Interactive card with hover state */
+@utility payload-card-interactive {
+  background-color: var(--theme-elevation-50);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-s);
+  padding: var(--base);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: var(--theme-elevation-100);
+  }
+}
+
+/* Status banners */
+@utility payload-banner-success {
+  background-color: var(--theme-success-100);
+  color: var(--theme-success-900);
+  border: 1px solid var(--theme-success-500);
+  border-radius: var(--style-radius-s);
+  padding: 0.75rem 1rem;
+}
+
+@utility payload-banner-error {
+  background-color: var(--theme-error-100);
+  color: var(--theme-error-900);
+  border: 1px solid var(--theme-error-500);
+  border-radius: var(--style-radius-s);
+  padding: 0.75rem 1rem;
+}
+
+@utility payload-banner-warning {
+  background-color: var(--theme-warning-100);
+  color: var(--theme-warning-900);
+  border: 1px solid var(--theme-warning-500);
+  border-radius: var(--style-radius-s);
+  padding: 0.75rem 1rem;
+}
+
+/* Selected item highlight */
+@utility payload-selected {
+  background-color: var(--theme-elevation-100);
+  border-color: var(--theme-elevation-500);
+}
+
+/* Field group container */
+@utility payload-field-group {
+  padding: var(--base);
+  margin-bottom: var(--base);
+  border: 1px solid var(--theme-border-color);
+  border-radius: var(--style-radius-s);
+}

@@ -1,0 +1,77 @@
+.slug-field-component {
+  width: 100%;
+
+  .label-wrapper {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--base) / 4);
+  }
+
+  .slug-actions {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-left: auto;
+  }
+
+  .slug-action-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 4px;
+    transition: color 0.15s ease;
+    height: auto;
+    line-height: 1;
+
+    // Default icon color - muted
+    color: var(--theme-elevation-450);
+
+    &:hover {
+      color: var(--theme-elevation-650);
+    }
+
+    &:active {
+      color: var(--theme-elevation-700);
+    }
+
+    // Tooltip
+    &:hover .slug-tooltip {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+
+  .slug-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-4px);
+    padding: 0.25rem 0.5rem;
+    background: var(--theme-elevation-0);
+    color: var(--theme-elevation-800);
+    border: 1px solid var(--theme-elevation-100);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: var(--style-radius-s, 3px);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease, visibility 0.15s ease;
+    pointer-events: none;
+    z-index: 10;
+
+    // Arrow
+    &::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--theme-elevation-100);
+    }
+  }
+}

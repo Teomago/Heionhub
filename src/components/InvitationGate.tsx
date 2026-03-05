@@ -85,7 +85,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
   }
 
   return (
-    <div className="flex min-h-screen w-full items-center justify-center bg-background p-4 animate-in fade-in duration-500">
+    <div className="flex w-full items-center justify-center p-4 animate-in fade-in duration-500">
       <AnimatePresence mode="wait">
         {step === 'CODE' && (
           <motion.div
@@ -95,10 +95,10 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
             exit={{ opacity: 0, y: -20 }}
             className="w-full max-w-lg"
           >
-            <Card className="border-neutral-800 bg-neutral-900/50 text-foreground backdrop-blur-sm">
+            <Card className="border-border bg-card text-card-foreground shadow-2xl">
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-bold leading-tight">{globals.title}</CardTitle>
-                <CardDescription className="text-lg text-neutral-400 pt-2">
+                <CardDescription className="text-lg text-muted-foreground pt-2">
                   {globals.subtitle}
                 </CardDescription>
               </CardHeader>
@@ -107,7 +107,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                   <div className="grid gap-2">
                     <Input
                       placeholder="ENTER-YOUR-CODE-HERE"
-                      className="bg-neutral-950 border-neutral-800 text-center text-xl tracking-widest uppercase h-14"
+                      className="bg-background border-input text-center text-xl tracking-widest uppercase h-14"
                       maxLength={14}
                       value={code}
                       onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -120,9 +120,9 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                   )}
                 </div>
               </CardContent>
-              <CardFooter>
+              <CardFooter className="flex-col gap-2">
                 <Button
-                  className="w-full mb-2 bg-white text-black hover:bg-neutral-200"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   size="lg"
                   onClick={handleVerify}
                   disabled={loading || code.length < 14}
@@ -131,7 +131,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                 </Button>
                 <Button
                   variant="link"
-                  className="w-full text-neutral-400 hover:text-white"
+                  className="w-full text-muted-foreground hover:text-foreground mt-2"
                   onClick={() => router.push('/login')}
                 >
                   Back to Login
@@ -149,10 +149,10 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
             exit={{ opacity: 0, scale: 0.95 }}
             className="w-full max-w-xl"
           >
-            <Card className="border-neutral-800 bg-neutral-900/50 text-foreground backdrop-blur-sm">
+            <Card className="border-border bg-card text-card-foreground shadow-2xl">
               <CardHeader>
                 <CardTitle>Welcome Home</CardTitle>
-                <CardDescription>Fill in your details to complete registration.</CardDescription>
+                <CardDescription className="text-muted-foreground">Fill in your details to complete registration.</CardDescription>
               </CardHeader>
               <CardContent>
                 <form id="register-form" onSubmit={handleRegister} className="grid gap-4">
@@ -163,7 +163,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                         id="firstName"
                         name="firstName"
                         required
-                        className="bg-neutral-950 border-neutral-800"
+                        className="bg-background border-input"
                       />
                     </div>
                     <div className="grid gap-2">
@@ -171,7 +171,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                       <Input
                         id="secondName"
                         name="secondName"
-                        className="bg-neutral-950 border-neutral-800"
+                        className="bg-background border-input"
                       />
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                         id="lastName"
                         name="lastName"
                         required
-                        className="bg-neutral-950 border-neutral-800"
+                        className="bg-background border-input"
                       />
                     </div>
                     <div className="grid gap-2">
@@ -190,7 +190,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                       <Input
                         id="secondLastName"
                         name="secondLastName"
-                        className="bg-neutral-950 border-neutral-800"
+                        className="bg-background border-input"
                       />
                     </div>
                   </div>
@@ -202,7 +202,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                       name="email"
                       type="email"
                       required
-                      className="bg-neutral-950 border-neutral-800"
+                      className="bg-background border-input"
                     />
                   </div>
 
@@ -214,7 +214,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                         name="password"
                         type="password"
                         required
-                        className="bg-neutral-950 border-neutral-800"
+                        className="bg-background border-input"
                       />
                     </div>
                     <div className="grid gap-2">
@@ -224,7 +224,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
                         name="confirmPassword"
                         type="password"
                         required
-                        className="bg-neutral-950 border-neutral-800"
+                        className="bg-background border-input"
                       />
                     </div>
                   </div>

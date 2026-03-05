@@ -1,0 +1,192 @@
+import React from 'react'
+import { getPayload } from '@/lib/payload/getPayload'
+import { headers } from 'next/headers'
+import Link from 'next/link'
+import { Button } from '@/components/buttons/Button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/display/Card'
+import { Plus, Lock, PieChart } from 'lucide-react'
+import { redirect } from 'next/navigation'
+import { BudgetActions } from './components/BudgetActions'
+import { getCategoryIcon } from '@/constants/category-icons'
+
+export default async function BudgetPage() {
+  const payload = await getPayload()
+  const headersList = await headers()
+  const { user } = await payload.auth({ headers: headersList })
+
+  if (!user) return redirect('/login')
+
+  const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM
+
+  const budgets = await payload.find({
+    collection: 'budgets',
+    where: {
+      and: [{ owner: { equals: user.id } }, { month: { equals: currentMonth } }],
+    },
+    depth: 1,
+  })
+
+  // Calculate spent amount per category for current month
+  // We need to fetch transactions for current month grouped by category
+  // Payload local API doesn't support aggregate/groupBy easily yet (maybe verify?).
+  // We can fetch all transactions for the month and calculate in JS (assuming reasonable count).
+
+  const categories = await payload.find({
+    collection: 'categories',
+    where: {
+      owner: {
+        equals: user.id,
+      },
+    },
+    pagination: false,
+    sort: 'name',
+  })
+
+  // Start/End of month
+  const startOfMonth = `${currentMonth}-01`
+  const endOfMonth = `${currentMonth}-31` // Loose upper bound covers it
+
+  const transactions = await payload.find({
+    collection: 'transactions',
+    where: {
+      and: [
+        { owner: { equals: user.id } },
+        { date: { greater_than_equal: startOfMonth } },
+        { date: { less_than_equal: endOfMonth } },
+        { type: { equals: 'expense' } }, // Budget tracks expenses
+      ],
+    },
+    limit: 1000,
+    pagination: false,
+  })
+
+  // Map category ID to spent amount
+  const spentByCategory: Record<string, number> = {}
+  transactions.docs.forEach((tx) => {
+    const catId = typeof tx.category === 'object' ? tx.category?.id : tx.category
+    if (catId) {
+      spentByCategory[catId] = (spentByCategory[catId] || 0) + tx.amount
+    } else {
+      // Uncategorized expenses
+      spentByCategory['uncategorized'] = (spentByCategory['uncategorized'] || 0) + tx.amount
+    }
+  })
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold tracking-tight">Budget ({currentMonth})</h1>
+        <div className="flex space-x-2">
+          <Link href="?addBudget=true">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Create Budget
+            </Button>
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {budgets.docs.length === 0 ? (
+          <Card className="col-span-full shadow-sm">
+            <CardContent className="flex flex-col items-center justify-center p-12 text-center">
+              <div className="rounded-full bg-primary/10 p-4 mb-4">
+                <PieChart className="h-8 w-8 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold">No budgets found</h3>
+              <p className="text-sm text-muted-foreground mt-2 max-w-sm">
+                You haven&apos;t set any budgets for this month yet. Create one to start tracking
+                your spending.
+              </p>
+              <Link href="?addBudget=true" className="mt-6">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Budget
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        ) : (
+          budgets.docs.map((budget) => {
+            const category = typeof budget.category === 'object' ? budget.category : null
+            const categoryName = category?.name || 'Unknown Category'
+            const catId = category?.id
+            const actualSpent = catId ? spentByCategory[catId] || 0 : 0
+
+            const Icon = getCategoryIcon(category?.icon)
+            const color = category?.color || '#000000'
+
+            const progress = Math.min((actualSpent / budget.amount) * 100, 100)
+
+            return (
+              <Card
+                key={budget.id}
+                className={budget.locked ? 'opacity-90 border-dashed' : ''}
+                style={{
+                  borderLeft: `4px solid ${color}`,
+                }}
+              >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className="p-1 rounded-md bg-opacity-20 flex items-center justify-center shadow-sm"
+                      style={{
+                        backgroundColor: `${color}20`,
+                        color: color,
+                      }}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="flex flex-col">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        {categoryName}
+                        {budget.name && (
+                          <span className="text-muted-foreground font-normal">({budget.name})</span>
+                        )}
+                      </CardTitle>
+                      {budget.locked && (
+                        <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
+                          <Lock className="h-3 w-3" /> Locked
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <BudgetActions budget={budget} categories={categories.docs} />
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="text-xs text-muted-foreground">{progress.toFixed(0)}%</span>
+                  </div>
+                  <div className="text-2xl font-bold">
+                    {/* Spent / Budget */}
+                    {(actualSpent / 100).toLocaleString('en-US', {
+                      style: 'currency',
+                      currency: 'USD',
+                    })}
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
+                      /{' '}
+                      {(budget.amount / 100).toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                      })}
+                    </span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="mt-2 h-2 w-full bg-secondary rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${progress > 100 ? 'bg-red-500' : 'bg-primary'}`}
+                      style={{
+                        width: `${progress}%`,
+                        backgroundColor: progress <= 100 ? color : undefined,
+                      }}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })
+        )}
+      </div>
+    </div>
+  )
+}

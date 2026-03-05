@@ -1,0 +1,38 @@
+/* Main frontend stylesheet */
+/* Tailwind v4 */
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/preflight' layer(base);
+@import 'tailwindcss/utilities' layer(utilities);
+
+/* Animations */
+@import 'tw-animate-css';
+
+/* Typography plugin (v3-style JS plugin loaded via @plugin) */
+@plugin '@tailwindcss/typography';
+
+/* Custom dark variant */
+@custom-variant dark (&:is(.dark *));
+
+/* Frontend theme, utility definitions, and global styles */
+@import './frontend/theme.css';
+@import './frontend/utility-defs.css';
+@import './frontend/globals.css';
+
+/* Marquee animations (used by LogoCloud and Marquee blocks) */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-reverse {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

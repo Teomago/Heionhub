@@ -1,0 +1,144 @@
+/*
+ * Frontend Utility Definitions — Custom Tailwind utilities
+ *
+ * Defines project-specific utility classes using @utility (Tailwind v4).
+ */
+
+/* ===== Container Utilities ===== */
+
+/* Standard content container */
+@utility container {
+  max-width: var(--content-max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter-inline);
+  width: 100%;
+}
+
+/* Narrow container for blog/post content */
+@utility container-post {
+  max-width: var(--content-post-max-width);
+  margin-inline: auto;
+  padding-inline: var(--gutter-inline);
+  width: 100%;
+}
+
+/* Rich text container — inherits parent container width */
+@utility rich-text-container {
+  max-width: var(--content-max-width);
+  width: 100%;
+}
+
+/* Rich text post container */
+@utility rich-text-container-post {
+  max-width: var(--content-post-max-width);
+  width: 100%;
+}
+
+/* Break out of container to full viewport width */
+@utility full-width {
+  margin-inline: calc(-1 * var(--gutter-inline));
+  width: calc(100% + 2 * var(--gutter-inline));
+}
+
+/* ===== Visibility ===== */
+
+/* Hidden when rendered inside an iframe (live preview) */
+@utility hidden-in-iframe {
+  @media all and (display-mode: standalone) {
+    /* Not in iframe */
+  }
+
+  iframe & {
+    display: none;
+  }
+}
+
+/* ===== Interactive States ===== */
+
+/* Active state indicator (e.g., active nav link) */
+@utility active-class {
+  &[data-active='true'],
+  &.active {
+    font-weight: 600;
+  }
+}
+
+/* Focus ring - inset */
+@utility focus-ring {
+  &:focus-visible {
+    outline: 2px solid oklch(var(--ring));
+    outline-offset: -2px;
+    border-radius: var(--radius);
+  }
+}
+
+/* Focus ring - offset */
+@utility focus-ring-offset {
+  &:focus-visible {
+    outline: 2px solid oklch(var(--ring));
+    outline-offset: 2px;
+    border-radius: var(--radius);
+  }
+}
+
+/* Accent border (e.g., active/selected states) */
+@utility accent-border {
+  border-left: 3px solid oklch(var(--primary));
+}
+
+/* ===== Clickable Areas ===== */
+
+/* Expand clickable area beyond visible bounds */
+@utility clickable-area-sm {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.25rem;
+  }
+}
+
+@utility clickable-area-md {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.5rem;
+  }
+}
+
+@utility clickable-area-lg {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -0.75rem;
+  }
+}
+
+/* ===== Overlays ===== */
+
+/* Backdrop overlay (modals, drawers) */
+@utility backdrop-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: oklch(0 0 0 / 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+}
+
+/* Drawer content panel */
+@utility drawer-content {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(24rem, 100vw);
+  background-color: oklch(var(--background));
+  border-left: 1px solid oklch(var(--border));
+  z-index: 50;
+  overflow-y: auto;
+}

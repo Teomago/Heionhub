@@ -1,0 +1,65 @@
+/*
+ * Admin Theme — Maps Payload CSS variables to Tailwind tokens
+ *
+ * This enables using Tailwind utilities that match the Payload admin theme,
+ * so custom admin components blend seamlessly with the admin panel.
+ */
+
+@theme {
+  /* Elevation colors (backgrounds at different depths) */
+  --color-elevation-0: var(--theme-elevation-0);
+  --color-elevation-50: var(--theme-elevation-50);
+  --color-elevation-100: var(--theme-elevation-100);
+  --color-elevation-150: var(--theme-elevation-150);
+  --color-elevation-200: var(--theme-elevation-200);
+  --color-elevation-250: var(--theme-elevation-250);
+  --color-elevation-300: var(--theme-elevation-300);
+  --color-elevation-350: var(--theme-elevation-350);
+  --color-elevation-400: var(--theme-elevation-400);
+  --color-elevation-450: var(--theme-elevation-450);
+  --color-elevation-500: var(--theme-elevation-500);
+  --color-elevation-550: var(--theme-elevation-550);
+  --color-elevation-600: var(--theme-elevation-600);
+  --color-elevation-650: var(--theme-elevation-650);
+  --color-elevation-700: var(--theme-elevation-700);
+  --color-elevation-750: var(--theme-elevation-750);
+  --color-elevation-800: var(--theme-elevation-800);
+  --color-elevation-850: var(--theme-elevation-850);
+  --color-elevation-900: var(--theme-elevation-900);
+  --color-elevation-950: var(--theme-elevation-950);
+  --color-elevation-1000: var(--theme-elevation-1000);
+
+  /* Status colors */
+  --color-success-100: var(--theme-success-100);
+  --color-success-500: var(--theme-success-500);
+  --color-success-900: var(--theme-success-900);
+  --color-error-100: var(--theme-error-100);
+  --color-error-500: var(--theme-error-500);
+  --color-error-900: var(--theme-error-900);
+  --color-warning-100: var(--theme-warning-100);
+  --color-warning-500: var(--theme-warning-500);
+  --color-warning-900: var(--theme-warning-900);
+
+  /* Semantic tokens */
+  --color-theme-bg: var(--theme-bg);
+  --color-theme-text: var(--theme-text);
+  --color-theme-input-bg: var(--theme-input-bg);
+  --color-theme-overlay: var(--color-elevation-0);
+  --color-theme-border: var(--theme-border-color);
+
+  /* Spacing tokens */
+  --spacing-base: var(--base);
+  --spacing-gutter-h: var(--gutter-h);
+
+  /* Border radius */
+  --radius-payload: var(--style-radius-s);
+
+  /* Transitions */
+  --transition-duration-fast: 150ms;
+  --transition-duration-normal: 250ms;
+
+  /* Z-index layers */
+  --z-popup: var(--z-popup);
+  --z-modal: var(--z-modal);
+  --z-status: var(--z-status);
+}

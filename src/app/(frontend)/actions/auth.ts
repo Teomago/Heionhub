@@ -1,7 +1,7 @@
 'use server'
 
 import { getPayload } from 'payload'
-import config from '@/payload.config'
+import config from '@payload-config'
 
 export async function verifyInvitation(code: string) {
   const payload = await getPayload({ config })
@@ -69,6 +69,7 @@ export async function registerMember(formData: FormData, invitationCode: string)
         secondName,
         lastName,
         secondLastName,
+        currency: 'USD',
       },
     })
 

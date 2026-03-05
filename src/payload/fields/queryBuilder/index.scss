@@ -1,0 +1,70 @@
+// Query Builder JSON Field - additional styles only
+// Original where-builder/condition styles from PayloadCMS are used as-is
+
+// Unique wrapper class to avoid collisions
+.query-builder-field {
+  // Remove background from where-builder inside our component
+  .where-builder {
+    background: transparent;
+    padding: 0;
+
+    &__label {
+      color: var(--theme-elevation-500);
+      font-size: 13px;
+    }
+  }
+
+  // AND group - card with border
+  .query-builder-field__and-group {
+    padding: var(--base);
+    border: 1px solid var(--theme-border-color);
+    border-radius: var(--style-radius-m);
+  }
+
+  // OR separator label
+  .query-builder-field__or-label {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  // AND label inside group
+  .query-builder-field__and-label {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  // Raw JSON preview
+  &__raw {
+    margin-top: var(--base);
+
+    summary {
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--theme-elevation-500);
+      user-select: none;
+
+      &:hover {
+        color: var(--theme-elevation-650);
+      }
+    }
+
+    pre {
+      margin-top: calc(var(--base) / 2);
+      padding: var(--base);
+      background: var(--theme-elevation-50);
+      border: 1px solid var(--theme-border-color);
+      border-radius: var(--style-radius-s);
+      overflow-x: auto;
+      font-size: 11px;
+      font-family: var(--font-mono);
+
+      code {
+        color: var(--theme-elevation-800);
+      }
+    }
+  }
+}

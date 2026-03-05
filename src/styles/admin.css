@@ -1,0 +1,16 @@
+/* Admin panel stylesheet */
+/* Tailwind v4 without preflight (Payload provides its own CSS reset) */
+@import 'tailwindcss/theme' layer(theme);
+@import 'tailwindcss/utilities' layer(utilities);
+
+/* Scan Payload component paths for class extraction */
+@source '../payload/**/*.{ts,tsx}';
+
+/* Admin theme tokens and utility definitions */
+@import './admin/theme.css';
+@import './admin/utility-defs.css';
+
+/* Fix table display issues in admin blocks */
+.table {
+  display: block;
+}
