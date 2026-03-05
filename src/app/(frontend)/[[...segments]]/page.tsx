@@ -1,6 +1,7 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { draftMode } from 'next/headers'
 import { getPage, getPageStaticParams } from '@/modules/pages/data'
 import { BlocksRenderer } from '@/modules/blocks/BlocksRenderer'
 import { ArticleListTemplate } from '@/modules/articles/ArticleListTemplate'
@@ -25,8 +26,9 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { isEnabled: draft } = await draftMode()
   const { segments } = await params
-  const page = await getPage({ segments })
+  const page = await getPage({ segments, draft })
 
   if (page) {
     return generatePageMeta(page)
@@ -35,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Try article
   if (segments && segments.length > 0) {
     const slug = segments[segments.length - 1]
-    const article = await getArticle(slug)
+    const article = await getArticle(slug, draft)
     if (article) {
       return generateArticleMeta(article)
     }
@@ -45,8 +47,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function Page({ params, searchParams }: Props) {
+  const { isEnabled: draft } = await draftMode()
   const { segments } = await params
-  const page = await getPage({ segments })
+  const page = await getPage({ segments, draft })
 
   if (page) {
     // Dynamic listing page (e.g., articles)
@@ -64,7 +67,7 @@ export default async function Page({ params, searchParams }: Props) {
   // No page found — try article by pathname
   if (segments && segments.length > 0) {
     const slug = segments[segments.length - 1]
-    const article = await getArticle(slug)
+    const article = await getArticle(slug, draft)
 
     if (article) {
       // Verify full pathname matches if article has a pathname
