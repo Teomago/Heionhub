@@ -7,6 +7,7 @@ import type {
   FieldCondition,
   AccessFieldStatic,
 } from './types'
+import { isMember, isAdminUser } from '@/lib/auth/typeGuards'
 import { normalizeRoles, mergeRoles, processFieldRoles } from './utils'
 import { SUPER_ADMIN_ROLE } from './constants'
 
@@ -30,13 +31,16 @@ const createAccessFieldFunction = <T = any>(config?: AccessFieldConfig<T>) => {
       return false
     }
 
-    const userCollection = (user as any).collection
+    let userCollection = ''
+    let userRoles: string[] = []
 
-    const userRoles: string[] = Array.isArray((user as any).roles)
-      ? (user as any).roles
-      : (user as any).role
-        ? [(user as any).role]
-        : []
+    if (isAdminUser(user)) {
+      userCollection = user.collection
+      userRoles = Array.isArray(user.roles) ? user.roles : []
+    } else if (isMember(user)) {
+      userCollection = user.collection
+      userRoles = []
+    }
 
     if (userRoles.includes(SUPER_ADMIN_ROLE) && !config?.adminLock) {
       return true

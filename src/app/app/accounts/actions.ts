@@ -1,9 +1,8 @@
 'use server'
 
-import { getPayload } from '@/lib/payload/getPayload'
+import { assertUser } from '@/lib/auth/assertUser'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { headers } from 'next/headers'
 
 const createAccountSchema = z.object({
   name: z.string().min(2),
@@ -15,13 +14,7 @@ const createAccountSchema = z.object({
 })
 
 export async function createAccount(data: z.infer<typeof createAccountSchema>) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     let balanceInCents = Math.round(data.balance * 100)
@@ -54,29 +47,13 @@ export async function updateAccount(
   id: string,
   data: Partial<z.infer<typeof createAccountSchema>>,
 ) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     const updateData: any = { ...data }
     if (typeof data.balance === 'number') {
       const balanceInCents = Math.round(data.balance * 100)
       if (updateData.type === 'credit' || (!updateData.type && data.type === 'credit')) {
-        // If updating balance, and it's a credit account (either new type or existing type if not changing type)
-        // We need to know the type to do this logic correctly in update.
-        // However, data is Partial. We might not have type.
-        // Ideally we fetch account to check type if not provided, OR we rely on frontend sending it.
-        // For now, let's assume if they are editing, they see the negative value?
-        // Actually, if we invert it on create, it shows as negative.
-        // Users might be confused seeing negative.
-        // If they see -500 and change to -600, it works.
-        // If they see -500 and change to 600 (thinking debt), we should probably not auto-invert on update unless we change the UI to show absolute value for credit.
-        // Let's stick to Create logic modification for now as per user request context (initial of new account).
         updateData.balance = balanceInCents
       } else {
         updateData.balance = balanceInCents
@@ -100,18 +77,11 @@ export async function updateAccount(
     return { error: 'Failed to update account' }
   }
 
-  // Usually handled by client-side mutation invalidation, but could redirect or just return success
   return { success: true }
 }
 
 export async function deleteAccount(id: string) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     await payload.delete({

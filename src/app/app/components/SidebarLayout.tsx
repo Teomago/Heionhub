@@ -101,11 +101,11 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
             </li>
             <li>
               <Link
-                href="/app/subscriptions"
-                className={`group flex items-center rounded-lg p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 ${pathname.includes('/subscriptions') ? 'bg-neutral-100 dark:bg-neutral-800 text-primary' : 'text-neutral-900 dark:text-white'}`}
+                href="/app/scheduled-transactions"
+                className={`group flex items-center rounded-lg p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 ${pathname.includes('/scheduled-transactions') ? 'bg-neutral-100 dark:bg-neutral-800 text-primary' : 'text-neutral-900 dark:text-white'}`}
               >
                 <Calendar className="h-5 w-5 opacity-75" />
-                <span className="ms-3">Subscriptions</span>
+                <span className="ms-3">Scheduled</span>
               </Link>
             </li>
             <li>
@@ -140,7 +140,7 @@ export function SidebarLayout({ children }: { children: React.ReactNode }) {
         }`}
       >
         {/* Top Header with toggle button */}
-        <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="sticky top-0 z-20 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
           <Button
             variant="ghost"
             size="sm"

@@ -8,7 +8,7 @@ import { Accounts } from './finance/Accounts'
 import { Budgets } from './finance/Budgets'
 import { Categories } from './finance/Categories'
 import { Members } from './finance/Members'
-import { Subscriptions } from './finance/Subscriptions'
+import { ScheduledTransactions } from './finance/ScheduledTransactions'
 import { Transactions } from './finance/Transactions'
 
 export const collections = [
@@ -21,7 +21,7 @@ export const collections = [
   Budgets,
   Categories,
   Members,
-  Subscriptions,
+  ScheduledTransactions,
   Transactions,
   // Settings
   Users,

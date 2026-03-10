@@ -1,4 +1,5 @@
 import React from 'react'
+import { isMember } from '@/lib/auth/typeGuards'
 import { redirect } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -20,7 +21,7 @@ export default async function DashboardPage() {
   const yearMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   // Fetch Core Data
-  const [accounts, categories, budgetsRaw, subscriptionsRaw] = await Promise.all([
+  const [accounts, categories, budgetsRaw, scheduledTransactionsRaw] = await Promise.all([
     payload.find({
       collection: 'accounts',
       where: { owner: { equals: user.id } },
@@ -38,7 +39,7 @@ export default async function DashboardPage() {
       depth: 1, // Get categories
     }),
     payload.find({
-      collection: 'subscriptions',
+      collection: 'scheduled-transactions',
       where: { owner: { equals: user.id } },
       sort: 'nextDueDate',
       pagination: false,
@@ -49,12 +50,7 @@ export default async function DashboardPage() {
   const totalBalanceCents = accounts.docs.reduce((sum, acc) => sum + (acc.balance || 0), 0)
   const totalBalance = totalBalanceCents / 100
 
-  // Fetch transactions for Recent Activity & Budget Calculation (Current Month)
-  const firstDayOfMonth = new Date()
-  firstDayOfMonth.setDate(1)
-  firstDayOfMonth.setHours(0, 0, 0, 0)
-  const currentMonthStr = firstDayOfMonth.toISOString()
-
+  // Fetch transactions for Recent Activity (Current Month)
   const recentTransactionsRaw = await payload.find({
     collection: 'transactions',
     where: {
@@ -65,39 +61,30 @@ export default async function DashboardPage() {
     depth: 1,
   })
 
-  // We need to calculate Budget Health.
-  // We'll fetch all transactions for this month to calculate it accurately.
-  const thisMonthTransactions = await payload.find({
-    collection: 'transactions',
-    where: {
-      and: [{ owner: { equals: user.id } }, { date: { greater_than_equal: currentMonthStr } }],
-    },
-    pagination: false,
-    limit: 2000,
-  })
+  // FETCH ACCELERATED BUDGET HEALTH FROM DB AGGREGATIONS
+  const { getDashboardAggregationsWithCache } = await import('./reports/actions')
+  const { dashboard } = await getDashboardAggregationsWithCache()
+  const currentMonthCategorySpend = dashboard.currentMonthCategorySpend
 
-  // Calculate Budget Health for all active budgets
+  // Calculate Budget Health for all active budgets using the DB Map
   const allBudgetsHealth = budgetsRaw.docs.map((budget: Budget) => {
     let spentCents = 0
-    // The schema property is singular 'category' and allows multiple selections or single ref.
-    // Because it's a relationship, Payload returns either ID, object, or an array of them.
     const categoriesArray = Array.isArray(budget.category)
       ? budget.category
       : budget.category
         ? [budget.category]
         : []
+
     const categoryIds = categoriesArray.map((c: string | Category) =>
       typeof c === 'string' ? c : c.id,
     )
 
-    thisMonthTransactions.docs.forEach((tx) => {
-      if (tx.type === 'expense') {
-        const catId = typeof tx.category === 'object' ? tx.category?.id : tx.category
-        if (catId && categoryIds.includes(catId)) {
-          spentCents += tx.amount
-        }
+    // O(1) Lookup instead of nested loop over thousands of docs
+    for (const catId of categoryIds) {
+      if (currentMonthCategorySpend[catId]) {
+        spentCents += currentMonthCategorySpend[catId] * 100 // convert back to cents for precision math
       }
-    })
+    }
 
     const limitCents = budget.amount || 0
     const progress = limitCents > 0 ? (spentCents / limitCents) * 100 : 0
@@ -119,13 +106,18 @@ export default async function DashboardPage() {
   // Sort by highest spend first, then take the top 3
   const budgetHealth = allBudgetsHealth.sort((a, b) => b.spent - a.spent).slice(0, 3)
 
+  let hasCompletedTour = false
+  if (isMember(user)) {
+    hasCompletedTour = user.hasCompletedTour || false
+  }
+
   const initialData = {
     totalBalance,
     budgetHealth,
-    upcomingBills: subscriptionsRaw.docs,
+    upcomingBills: scheduledTransactionsRaw.docs,
     recentTransactions: recentTransactionsRaw.docs,
     categories: categories.docs,
-    hasCompletedTour: (user as any).hasCompletedTour || false,
+    hasCompletedTour,
   }
 
   return <DashboardClient initialData={initialData} />

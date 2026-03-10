@@ -14,7 +14,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/display/Card'
-import { createSubscription, updateSubscription } from '@/app/app/subscriptions/actions'
+import {
+  createScheduledTransaction,
+  updateScheduledTransaction,
+} from '@/app/app/scheduled-transactions/actions'
 import {
   Select,
   SelectContent,
@@ -35,7 +38,7 @@ const subscriptionSchema = z.object({
   category: z.string().optional(),
 })
 
-export function SubscriptionForm({
+export function ScheduledTransactionForm({
   accounts,
   categories,
   initialData,
@@ -81,14 +84,14 @@ export function SubscriptionForm({
       }
 
       if (initialData) {
-        await updateSubscription(initialData.id, payloadData)
+        await updateScheduledTransaction(initialData.id, payloadData)
       } else {
-        await createSubscription(payloadData)
+        await createScheduledTransaction(payloadData)
       }
 
       // Instantly refresh the Dashboard data
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] })
+      queryClient.invalidateQueries({ queryKey: ['scheduled-transactions'] })
 
       if (onSuccess) {
         onSuccess()

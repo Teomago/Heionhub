@@ -12,7 +12,7 @@ import type { GeneralSettings, SEOSettings } from '@/payload-types'
 import { getGoogleFontsUrl } from '@/payload/constants/googleFonts'
 import { Toaster } from '@/components/ui/sonner'
 import { TransactionModal } from './components/TransactionModal'
-import { SubscriptionModal } from './subscriptions/components/SubscriptionModal'
+import { ScheduledTransactionModal } from './scheduled-transactions/components/ScheduledTransactionModal'
 import { AccountModal } from './accounts/components/AccountModal'
 import { CategoryModal } from './categories/components/CategoryModal'
 import { BudgetModal } from './budget/components/BudgetModal'
@@ -132,7 +132,12 @@ export default async function AppLayout(props: { children: React.ReactNode }) {
           } as React.CSSProperties
         }
       >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           <QueryProvider>
             <TourProvider
               tours={tours}
@@ -147,7 +152,7 @@ export default async function AppLayout(props: { children: React.ReactNode }) {
               <SidebarLayout>{children}</SidebarLayout>
               <Toaster />
               <TransactionModal accounts={accounts.docs} categories={categories.docs} />
-              <SubscriptionModal accounts={accounts.docs} categories={categories.docs} />
+              <ScheduledTransactionModal accounts={accounts.docs} categories={categories.docs} />
               <AccountModal />
               <CategoryModal />
               <BudgetModal categories={categories.docs} />

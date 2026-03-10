@@ -1,5 +1,6 @@
 import type { AllRoles, AuthCollectionKeys, GetCollectionUser } from '@/payload/utils/access/types'
 import type { ClientUser } from 'payload'
+import { isMember, isAdminUser } from '@/lib/auth/typeGuards'
 import { SUPER_ADMIN_ROLE } from './access'
 
 type AuthUser = {
@@ -14,11 +15,13 @@ export const visibleFor = (allowedRoles: AllRoles[] = []): ((args: UserParam) =>
   return ({ user }) => {
     if (!user) return true
 
-    const userRoles: AllRoles[] = Array.isArray((user as any).roles)
-      ? (user as any).roles
-      : (user as any).role
-        ? [(user as any).role]
-        : []
+    let userRoles: AllRoles[] = []
+
+    if (isAdminUser(user)) {
+      userRoles = Array.isArray(user.roles) ? (user.roles as AllRoles[]) : []
+    } else if (isMember(user)) {
+      userRoles = []
+    }
 
     if (userRoles.includes(SUPER_ADMIN_ROLE as AllRoles)) {
       return false

@@ -1,4 +1,5 @@
 import { AccessResult, Where } from 'payload'
+import { isMember, isAdminUser } from '@/lib/auth/typeGuards'
 import type {
   AccessConfig,
   ChainableAccess,
@@ -31,13 +32,16 @@ const createAccessFunction = (config?: AccessConfig) => {
       return type === 'published' ? publishedQuery : false
     }
 
-    const userCollection = (user as any).collection
+    let userCollection = ''
+    let userRoles: string[] = []
 
-    const userRoles: string[] = Array.isArray((user as any).roles)
-      ? (user as any).roles
-      : (user as any).role
-        ? [(user as any).role]
-        : []
+    if (isAdminUser(user)) {
+      userCollection = user.collection
+      userRoles = Array.isArray(user.roles) ? user.roles : []
+    } else if (isMember(user)) {
+      userCollection = user.collection
+      userRoles = []
+    }
 
     // Process roles with collection-aware matching
     if (config?.roles) {

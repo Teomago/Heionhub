@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react'
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import type { Account, Category } from '@/payload-types'
-import { SubscriptionForm } from './SubscriptionForm'
+import { ScheduledTransactionForm } from './ScheduledTransactionForm'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
-export function SubscriptionModal({
+export function ScheduledTransactionModal({
   accounts,
   categories,
 }: {
@@ -52,7 +52,11 @@ export function SubscriptionModal({
           <DialogDescription>A form to add new recurring bills.</DialogDescription>
         </VisuallyHidden>
         <div className="py-4">
-          <SubscriptionForm accounts={accounts} categories={categories} onSuccess={handleSuccess} />
+          <ScheduledTransactionForm
+            accounts={accounts}
+            categories={categories}
+            onSuccess={handleSuccess}
+          />
         </div>
       </DialogContent>
     </Dialog>

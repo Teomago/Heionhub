@@ -2,8 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 import { access } from '@/payload/utils/access'
 
-export const Subscriptions: CollectionConfig = {
-  slug: 'subscriptions',
+export const ScheduledTransactions: CollectionConfig = {
+  slug: 'scheduled-transactions',
   access: {
     create: ({ req: { user } }) => !!user,
     delete: access.owner('owner').adminLock(),

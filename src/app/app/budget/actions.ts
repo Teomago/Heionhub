@@ -1,9 +1,8 @@
 'use server'
 
-import { getPayload } from '@/lib/payload/getPayload'
+import { assertUser } from '@/lib/auth/assertUser'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { headers } from 'next/headers'
 
 const createBudgetSchema = z.object({
   category: z.string().min(1, 'Category is required'),
@@ -15,13 +14,7 @@ const createBudgetSchema = z.object({
 })
 
 export async function createBudget(data: z.infer<typeof createBudgetSchema>) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     const amountInCents = Math.round(data.amount * 100)
@@ -41,9 +34,6 @@ export async function createBudget(data: z.infer<typeof createBudgetSchema>) {
       let currentYear = startYear
       let currentMonth = startMonth + i
 
-      // Normalize month (1-12)
-      // i=0 -> startMonth (e.g. 12) -> ok
-      // i=1 -> 13 -> Year+1, Month 1
       while (currentMonth > 12) {
         currentMonth -= 12
         currentYear++
@@ -98,13 +88,7 @@ export async function createBudget(data: z.infer<typeof createBudgetSchema>) {
 }
 
 export async function updateBudget(id: string, data: Partial<z.infer<typeof createBudgetSchema>>) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     const updateData: any = {}
@@ -128,13 +112,7 @@ export async function updateBudget(id: string, data: Partial<z.infer<typeof crea
 }
 
 export async function deleteBudget(id: string) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     await payload.delete({
@@ -150,13 +128,7 @@ export async function deleteBudget(id: string) {
 }
 
 export async function toggleBudgetLock(id: string, locked: boolean) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || user.collection !== 'members') {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   try {
     await payload.update({

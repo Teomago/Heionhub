@@ -130,7 +130,7 @@ export interface Config {
     budgets: Budget;
     categories: Category;
     members: Member;
-    subscriptions: Subscription;
+    'scheduled-transactions': ScheduledTransaction;
     transactions: Transaction;
     users: User;
     'invitation-codes': InvitationCode;
@@ -154,7 +154,7 @@ export interface Config {
     budgets: BudgetsSelect<false> | BudgetsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     members: MembersSelect<false> | MembersSelect<true>;
-    subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    'scheduled-transactions': ScheduledTransactionsSelect<false> | ScheduledTransactionsSelect<true>;
     transactions: TransactionsSelect<false> | TransactionsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'invitation-codes': InvitationCodesSelect<false> | InvitationCodesSelect<true>;
@@ -3703,9 +3703,9 @@ export interface Category {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscriptions".
+ * via the `definition` "scheduled-transactions".
  */
-export interface Subscription {
+export interface ScheduledTransaction {
   id: string;
   name: string;
   /**
@@ -3804,8 +3804,8 @@ export interface PayloadLockedDocument {
         value: string | Member;
       } | null)
     | ({
-        relationTo: 'subscriptions';
-        value: string | Subscription;
+        relationTo: 'scheduled-transactions';
+        value: string | ScheduledTransaction;
       } | null)
     | ({
         relationTo: 'transactions';
@@ -4112,9 +4112,9 @@ export interface MembersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscriptions_select".
+ * via the `definition` "scheduled-transactions_select".
  */
-export interface SubscriptionsSelect<T extends boolean = true> {
+export interface ScheduledTransactionsSelect<T extends boolean = true> {
   name?: T;
   amount?: T;
   frequency?: T;

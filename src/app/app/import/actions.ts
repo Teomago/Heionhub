@@ -1,19 +1,20 @@
 'use server'
 
-import { getPayload } from '@/lib/payload/getPayload'
-import { getAuthUser } from '@/lib/auth/getAuthUser'
+import { assertUser } from '@/lib/auth/assertUser'
 import { ParsedTransactionRow } from './components/DropzoneArea'
 
 export async function bulkImportTransactions(data: ParsedTransactionRow[]) {
   const startTime = Date.now()
+  let user, payload
   try {
-    const user = await getAuthUser()
-    if (!user) {
-      return { success: false, error: 'You must be logged in to import transactions.' }
-    }
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
+    return { success: false, error: 'You must be logged in to import transactions.' }
+  }
 
-    const payload = await getPayload()
-
+  try {
     // 1. Fetch User's existing Categories and Accounts to map against
     const existingAccountsRes = await payload.find({
       collection: 'accounts',

@@ -1,4 +1,5 @@
 import type { CollectionAfterLoginHook } from 'payload'
+import { isAdminUser } from '@/lib/auth/typeGuards'
 
 /**
  * After login, ensures the user has at least a default role.
@@ -6,7 +7,10 @@ import type { CollectionAfterLoginHook } from 'payload'
  * This handles users created via alternative auth methods who may not have roles assigned.
  */
 export const ensureRolesPopulated: CollectionAfterLoginHook = async ({ req, user }) => {
-  const roles = (user as any).roles
+  let roles: ('admin' | 'editor' | 'user')[] | undefined
+  if (isAdminUser(user)) {
+    roles = user.roles || undefined
+  }
 
   // If user has no roles, assign defaults
   if (!roles || (Array.isArray(roles) && roles.length === 0)) {
@@ -23,7 +27,9 @@ export const ensureRolesPopulated: CollectionAfterLoginHook = async ({ req, user
     })
 
     // Update the user object in-place so the current session has correct roles
-    ;(user as any).roles = defaultRoles
+    if (isAdminUser(user)) {
+      user.roles = defaultRoles as ('admin' | 'editor' | 'user')[]
+    }
   }
 
   return user

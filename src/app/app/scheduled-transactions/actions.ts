@@ -1,10 +1,9 @@
 'use server'
 
-import { getPayload } from '@/lib/payload/getPayload'
+import { assertUser } from '@/lib/auth/assertUser'
 import { z } from 'zod'
-import { headers } from 'next/headers'
 
-const subscriptionSchema = z.object({
+const scheduledTransactionSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   amount: z.number().min(0.01, 'Amount must be greater than 0'),
   frequency: z.enum(['weekly', 'monthly', 'yearly']),
@@ -13,12 +12,13 @@ const subscriptionSchema = z.object({
   category: z.string().optional(),
 })
 
-export async function createSubscription(data: z.infer<typeof subscriptionSchema>) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
+export async function createScheduledTransaction(data: z.infer<typeof scheduledTransactionSchema>) {
+  let user, payload
+  try {
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
     return { error: 'Unauthorized' }
   }
 
@@ -26,7 +26,7 @@ export async function createSubscription(data: z.infer<typeof subscriptionSchema
     const amountInCents = Math.round(data.amount * 100)
 
     await payload.create({
-      collection: 'subscriptions',
+      collection: 'scheduled-transactions',
       data: {
         name: data.name,
         amount: amountInCents,
@@ -40,22 +40,26 @@ export async function createSubscription(data: z.infer<typeof subscriptionSchema
     return { success: true }
   } catch (error) {
     console.error(error)
-    return { error: 'Failed to create subscription' }
+    return { error: 'Failed to create scheduled transaction' }
   }
 }
 
-export async function updateSubscription(id: string, data: z.infer<typeof subscriptionSchema>) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
+export async function updateScheduledTransaction(
+  id: string,
+  data: z.infer<typeof scheduledTransactionSchema>,
+) {
+  let user, payload
+  try {
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
     return { error: 'Unauthorized' }
   }
 
   try {
     const existing = await payload.findByID({
-      collection: 'subscriptions',
+      collection: 'scheduled-transactions',
       id,
     })
 
@@ -73,7 +77,7 @@ export async function updateSubscription(id: string, data: z.infer<typeof subscr
     const amountInCents = Math.round(data.amount * 100)
 
     await payload.update({
-      collection: 'subscriptions',
+      collection: 'scheduled-transactions',
       id,
       data: {
         name: data.name,
@@ -87,22 +91,23 @@ export async function updateSubscription(id: string, data: z.infer<typeof subscr
     return { success: true }
   } catch (error) {
     console.error(error)
-    return { error: 'Failed to update subscription' }
+    return { error: 'Failed to update scheduled transaction' }
   }
 }
 
-export async function deleteSubscription(id: string) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
+export async function deleteScheduledTransaction(id: string) {
+  let user, payload
+  try {
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
     return { error: 'Unauthorized' }
   }
 
   try {
     const existing = await payload.findByID({
-      collection: 'subscriptions',
+      collection: 'scheduled-transactions',
       id,
     })
 
@@ -118,12 +123,12 @@ export async function deleteSubscription(id: string) {
     }
 
     await payload.delete({
-      collection: 'subscriptions',
+      collection: 'scheduled-transactions',
       id,
     })
     return { success: true }
   } catch (error) {
     console.error(error)
-    return { error: 'Failed to delete subscription' }
+    return { error: 'Failed to delete scheduled transaction' }
   }
 }

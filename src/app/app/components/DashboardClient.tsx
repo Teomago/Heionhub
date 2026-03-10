@@ -8,7 +8,7 @@ import { Button } from '@/components/buttons/Button'
 import { useTour } from '@/components/ui/tour'
 import { getCategoryIcon } from '@/constants/category-icons'
 import { TransactionActions } from '../transactions/components/TransactionActions'
-import type { Budget, Category, Subscription, Transaction } from '@/payload-types'
+import type { Budget, Category, ScheduledTransaction, Transaction } from '@/payload-types'
 import { tourSteps } from '@/lib/tour-constants'
 
 interface DashboardData {
@@ -22,7 +22,7 @@ interface DashboardData {
       categoryColor: string | null
     }
   >
-  upcomingBills: Subscription[]
+  upcomingBills: ScheduledTransaction[]
   recentTransactions: Transaction[]
   categories: Category[]
   hasCompletedTour: boolean

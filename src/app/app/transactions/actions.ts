@@ -1,9 +1,8 @@
 'use server'
 
-import { getPayload } from '@/lib/payload/getPayload'
+import { assertUser } from '@/lib/auth/assertUser'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { headers } from 'next/headers'
 import type { Member } from '@/payload/payload-types'
 
 const createTransactionSchema = z.object({
@@ -17,13 +16,7 @@ const createTransactionSchema = z.object({
 })
 
 export async function createTransaction(data: z.infer<typeof createTransactionSchema>) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   const account = await payload.findByID({
     collection: 'accounts',
@@ -70,47 +63,6 @@ export async function createTransaction(data: z.infer<typeof createTransactionSc
         owner: user.id,
       },
     })
-
-    if (data.type === 'income') {
-      await payload.update({
-        collection: 'accounts',
-        id: data.account,
-        data: {
-          balance: account.balance + amountInCents,
-        },
-      })
-    } else if (data.type === 'expense') {
-      await payload.update({
-        collection: 'accounts',
-        id: data.account,
-        data: {
-          balance: account.balance - amountInCents,
-        },
-      })
-    } else if (data.type === 'transfer' && data.toAccount) {
-      // Deduct from source
-      await payload.update({
-        collection: 'accounts',
-        id: data.account,
-        data: {
-          balance: account.balance - amountInCents,
-        },
-      })
-
-      // Add to destination (fetch fresh to be safe or use what we check)
-      const toAccount = await payload.findByID({
-        collection: 'accounts',
-        id: data.toAccount,
-      })
-
-      await payload.update({
-        collection: 'accounts',
-        id: data.toAccount,
-        data: {
-          balance: toAccount.balance + amountInCents,
-        },
-      })
-    }
   } catch (error) {
     console.error(error)
     return { error: 'Failed to create transaction' }
@@ -120,11 +72,12 @@ export async function createTransaction(data: z.infer<typeof createTransactionSc
 }
 
 export async function deleteTransaction(id: string) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
+  let user, payload
+  try {
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
     return { error: 'Unauthorized' }
   }
 
@@ -142,49 +95,6 @@ export async function deleteTransaction(id: string) {
         : null
     if (!existing || ownerId !== user.id) {
       return { error: 'Transaction not found or unauthorized' }
-    }
-
-    // Revert balance changes
-    const amountInCents = existing.amount
-    const accountId = typeof existing.account === 'object' ? existing.account.id : existing.account
-    const toAccountId =
-      typeof existing.toAccount === 'object' ? existing.toAccount?.id : existing.toAccount
-
-    const account = await payload.findByID({
-      collection: 'accounts',
-      id: accountId,
-    })
-
-    if (existing.type === 'income') {
-      await payload.update({
-        collection: 'accounts',
-        id: accountId,
-        data: { balance: account.balance - amountInCents },
-      })
-    } else if (existing.type === 'expense') {
-      await payload.update({
-        collection: 'accounts',
-        id: accountId,
-        data: { balance: account.balance + amountInCents },
-      })
-    } else if (existing.type === 'transfer' && toAccountId) {
-      // Revert transfer: Add back to source, deduct from dest
-      await payload.update({
-        collection: 'accounts',
-        id: accountId,
-        data: { balance: account.balance + amountInCents },
-      })
-
-      const toAccount = await payload.findByID({
-        collection: 'accounts',
-        id: toAccountId,
-      })
-
-      await payload.update({
-        collection: 'accounts',
-        id: toAccountId,
-        data: { balance: toAccount.balance - amountInCents },
-      })
     }
 
     await payload.delete({
@@ -210,11 +120,12 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
   // 2. Update transaction data.
   // 3. Apply new transaction effects.
 
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
+  let user, payload
+  try {
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
     return { error: 'Unauthorized' }
   }
 
@@ -235,42 +146,6 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
       return { error: 'Transaction not found or unauthorized' }
     }
 
-    // 1. Revert Old Balance
-    const oldAmount = existing.amount
-    const oldAccountId =
-      typeof existing.account === 'object' ? existing.account.id : existing.account
-    const oldToAccountId =
-      typeof existing.toAccount === 'object' ? existing.toAccount?.id : existing.toAccount
-
-    const oldAccount = await payload.findByID({ collection: 'accounts', id: oldAccountId })
-
-    if (existing.type === 'income') {
-      await payload.update({
-        collection: 'accounts',
-        id: oldAccountId,
-        data: { balance: oldAccount.balance - oldAmount },
-      })
-    } else if (existing.type === 'expense') {
-      await payload.update({
-        collection: 'accounts',
-        id: oldAccountId,
-        data: { balance: oldAccount.balance + oldAmount },
-      })
-    } else if (existing.type === 'transfer' && oldToAccountId) {
-      await payload.update({
-        collection: 'accounts',
-        id: oldAccountId,
-        data: { balance: oldAccount.balance + oldAmount },
-      })
-      const oldToAccount = await payload.findByID({ collection: 'accounts', id: oldToAccountId })
-      await payload.update({
-        collection: 'accounts',
-        id: oldToAccountId,
-        data: { balance: oldToAccount.balance - oldAmount },
-      })
-    }
-
-    // 2. Update Transaction
     const newAmountInCents = Math.round(data.amount * 100)
     await payload.update({
       collection: 'transactions',
@@ -284,37 +159,6 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
         toAccount: data.type === 'transfer' ? data.toAccount : undefined,
       },
     })
-
-    // 3. Apply New Balance
-    // We need to fetch accounts again as they might have changed (or use the returned val from update but that's partial).
-    // Better to fetch fresh.
-    const newAccount = await payload.findByID({ collection: 'accounts', id: data.account })
-
-    if (data.type === 'income') {
-      await payload.update({
-        collection: 'accounts',
-        id: data.account,
-        data: { balance: newAccount.balance + newAmountInCents },
-      })
-    } else if (data.type === 'expense') {
-      await payload.update({
-        collection: 'accounts',
-        id: data.account,
-        data: { balance: newAccount.balance - newAmountInCents },
-      })
-    } else if (data.type === 'transfer' && data.toAccount) {
-      await payload.update({
-        collection: 'accounts',
-        id: data.account,
-        data: { balance: newAccount.balance - newAmountInCents },
-      })
-      const newToAccount = await payload.findByID({ collection: 'accounts', id: data.toAccount })
-      await payload.update({
-        collection: 'accounts',
-        id: data.toAccount,
-        data: { balance: newToAccount.balance + newAmountInCents },
-      })
-    }
 
     return { success: true }
   } catch (error) {
@@ -331,11 +175,12 @@ export async function exportFilteredTransactions(params: {
   account?: string
   sort?: string
 }) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
+  let user, payload
+  try {
+    const auth = await assertUser()
+    user = auth.user
+    payload = auth.payload
+  } catch (e) {
     return { success: false, error: 'Unauthorized' }
   }
 
@@ -437,13 +282,7 @@ export async function getTransactionsPaginated(
   page: number = 1,
   limit: number = 50,
 ) {
-  const payload = await getPayload()
-  const headersList = await headers()
-  const { user } = await payload.auth({ headers: headersList })
-
-  if (!user || (user.collection !== 'members' && user.collection !== 'users')) {
-    throw new Error('Unauthorized')
-  }
+  const { user, payload } = await assertUser()
 
   const where: any = {
     and: [{ owner: { equals: user.id } }],

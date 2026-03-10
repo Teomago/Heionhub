@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { access } from '@/payload/utils/access'
+import { updateAccountBalance, afterDeleteTransaction } from './hooks/updateAccountBalance'
 
 export const Transactions: CollectionConfig = {
   slug: 'transactions',
@@ -84,4 +85,8 @@ export const Transactions: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [updateAccountBalance],
+    afterDelete: [afterDeleteTransaction],
+  },
 }
