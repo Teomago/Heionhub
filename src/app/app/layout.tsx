@@ -112,7 +112,7 @@ export default async function AppLayout(props: { children: React.ReactNode }) {
   const [accounts, categories] = await Promise.all([accountsReq, categoriesReq])
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         {fontsUrl && (
           <>

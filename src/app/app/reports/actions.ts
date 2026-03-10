@@ -3,10 +3,12 @@
 import { assertUser } from '@/lib/auth/assertUser'
 import mongoose from 'mongoose'
 import { unstable_cache } from 'next/cache'
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
 
 // Internal function to do the actual MongoDB aggregation
 async function fetchAnalyticsAggregations(userId: string) {
-  const { payload } = await assertUser()
+  const payload = await getPayload({ config: configPromise })
   const TransactionsModel = payload.db.collections['transactions']
 
   if (!TransactionsModel) {
@@ -155,7 +157,7 @@ async function fetchAnalyticsAggregations(userId: string) {
 
 // Internal function to do the actual MongoDB aggregation
 async function fetchDashboardAggregations(userId: string) {
-  const { payload } = await assertUser()
+  const payload = await getPayload({ config: configPromise })
   const TransactionsModel = payload.db.collections['transactions']
 
   if (!TransactionsModel) {

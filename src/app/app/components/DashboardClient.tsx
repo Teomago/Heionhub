@@ -32,6 +32,9 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
   // We'll set up a query to refetch this exact dataset every 30 seconds
   const { data: dashboard } = useQuery({
     queryKey: ['dashboard'],
+    // Dashboard data is refreshed via Server Components passing new initialData (Server Actions + router.refresh).
+    // This dummy queryFn satisfies React Query v5's requirement.
+    queryFn: async () => initialData,
     // We provide the initial data so the page renders instantly on the server without loading states
     initialData,
   })
