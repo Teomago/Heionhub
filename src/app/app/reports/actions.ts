@@ -1,18 +1,19 @@
 'use server'
 
 import { assertUser } from '@/lib/auth/assertUser'
-import mongoose from 'mongoose'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { eq, and, gte, sum, sql, desc } from 'drizzle-orm'
 
-// Internal function to do the actual MongoDB aggregation
+// Internal function to do the actual Postgres/Drizzle aggregation
 async function fetchAnalyticsAggregations(userId: string) {
   const payload = await getPayload({ config: configPromise })
-  const TransactionsModel = payload.db.collections['transactions']
+  const txTable = payload.db.tables['transactions']
+  const catTable = payload.db.tables['categories']
 
-  if (!TransactionsModel) {
-    throw new Error('Transactions model not found in Payload DB adapter')
+  if (!txTable || !payload.db.drizzle) {
+    throw new Error('Transactions table or Drizzle adapter not found in Payload DB adapter')
   }
 
   const twelveMonthsAgo = new Date()
@@ -20,73 +21,40 @@ async function fetchAnalyticsAggregations(userId: string) {
   twelveMonthsAgo.setDate(1)
   twelveMonthsAgo.setHours(0, 0, 0, 0)
 
-  const ownerId = new mongoose.Types.ObjectId(userId)
+  const twelveMonthsAgoStr = twelveMonthsAgo.toISOString()
 
   // 1. Income vs Expense Over Time ($group by month and type)
-  const incomeExpensePipeline = [
-    {
-      $match: {
-        owner: ownerId,
-        date: { $gte: twelveMonthsAgo },
-      },
-    },
-    {
-      $group: {
-        _id: {
-          yearMonth: { $dateToString: { format: '%Y-%m', date: '$date' } },
-          type: '$type',
-        },
-        totalAmount: { $sum: '$amount' },
-      },
-    },
-  ]
+  const yearMonthSql = sql<string>`TO_CHAR(${txTable.date}, 'YYYY-MM')`
+
+  const incomeExpenseResult = await payload.db.drizzle
+    .select({
+      yearMonth: yearMonthSql,
+      type: txTable.type,
+      totalAmount: sum(txTable.amount).mapWith(Number),
+    })
+    .from(txTable)
+    .where(and(eq(txTable.owner, userId), gte(txTable.date, twelveMonthsAgoStr)))
+    .groupBy(yearMonthSql, txTable.type)
 
   // 2. Spending Category Distribution ($group by category, join Category collection)
-  const categoryPipeline: any[] = [
-    {
-      $match: {
-        owner: ownerId,
-        date: { $gte: twelveMonthsAgo },
-        type: 'expense',
-      },
-    },
-    {
-      $group: {
-        _id: '$category',
-        totalAmount: { $sum: '$amount' },
-      },
-    },
-    {
-      $lookup: {
-        from: 'categories',
-        localField: '_id',
-        foreignField: '_id',
-        as: 'category_details',
-      },
-    },
-    {
-      $unwind: {
-        path: '$category_details',
-        preserveNullAndEmptyArrays: true,
-      },
-    },
-    {
-      $project: {
-        categoryId: '$_id',
-        totalAmount: 1,
-        name: { $ifNull: ['$category_details.name', 'Uncategorized'] },
-        color: { $ifNull: ['$category_details.color', '#9ca3af'] },
-      },
-    },
-    {
-      $sort: { totalAmount: -1 },
-    },
-  ]
-
-  const [incomeExpenseResult, categoryResult] = await Promise.all([
-    TransactionsModel.aggregate(incomeExpensePipeline),
-    TransactionsModel.aggregate(categoryPipeline),
-  ])
+  const categoryResult = await payload.db.drizzle
+    .select({
+      categoryId: txTable.category,
+      totalAmount: sum(txTable.amount).mapWith(Number),
+      name: sql<string>`COALESCE(${catTable.name}, 'Uncategorized')`,
+      color: sql<string>`COALESCE(${catTable.color}, '#9ca3af')`,
+    })
+    .from(txTable)
+    .leftJoin(catTable, eq(txTable.category, catTable.id))
+    .where(
+      and(
+        eq(txTable.owner, userId),
+        gte(txTable.date, twelveMonthsAgoStr),
+        eq(txTable.type, 'expense'),
+      ),
+    )
+    .groupBy(txTable.category, catTable.name, catTable.color)
+    .orderBy(desc(sum(txTable.amount)))
 
   // Format Income/Expense for Frontend chart
   const monthlyDataMap: Record<string, { income: number; expense: number }> = {}
@@ -108,15 +76,15 @@ async function fetchAnalyticsAggregations(userId: string) {
   const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   for (const doc of incomeExpenseResult) {
-    const monthKey = doc._id.yearMonth
+    const monthKey = doc.yearMonth
     const amountFloat = doc.totalAmount / 100
 
     if (monthlyDataMap[monthKey]) {
-      if (doc._id.type === 'income') {
+      if (doc.type === 'income') {
         monthlyDataMap[monthKey].income += amountFloat
         totalIncome += amountFloat
         if (monthKey === currentMonthKey) currentMonthIncome += amountFloat
-      } else if (doc._id.type === 'expense') {
+      } else if (doc.type === 'expense') {
         monthlyDataMap[monthKey].expense += amountFloat
         totalExpense += amountFloat
         if (monthKey === currentMonthKey) currentMonthExpense += amountFloat
@@ -136,11 +104,10 @@ async function fetchAnalyticsAggregations(userId: string) {
       }
     })
 
-  // Format Category Distribution
   const spendingChartData = categoryResult.map((doc) => ({
-    name: doc.name,
+    name: doc.name as string,
     value: doc.totalAmount / 100,
-    color: doc.color,
+    color: doc.color as string,
   }))
 
   return {
@@ -155,44 +122,38 @@ async function fetchAnalyticsAggregations(userId: string) {
   }
 }
 
-// Internal function to do the actual MongoDB aggregation
+// Internal function to do the actual Postgres/Drizzle aggregation for the Dashboard
 async function fetchDashboardAggregations(userId: string) {
   const payload = await getPayload({ config: configPromise })
-  const TransactionsModel = payload.db.collections['transactions']
+  const txTable = payload.db.tables['transactions']
 
-  if (!TransactionsModel) {
-    throw new Error('Transactions model not found in Payload DB adapter')
+  if (!txTable || !payload.db.drizzle) {
+    throw new Error('Transactions table or Drizzle adapter not found in Payload DB adapter')
   }
 
   const now = new Date()
   const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-  const ownerId = new mongoose.Types.ObjectId(userId)
 
-  // Aggregation for calculating spend per category this month
-  const categorySpendPipeline = [
-    {
-      $match: {
-        owner: ownerId,
-        date: { $gte: firstDayOfMonth },
-        type: 'expense',
-      },
-    },
-    {
-      $group: {
-        _id: '$category',
-        spentCents: { $sum: '$amount' },
-      },
-    },
-  ]
-
-  // Execute
-  const categorySpendResult = await TransactionsModel.aggregate(categorySpendPipeline)
+  const categorySpendResult = await payload.db.drizzle
+    .select({
+      categoryId: txTable.category,
+      spentCents: sum(txTable.amount).mapWith(Number),
+    })
+    .from(txTable)
+    .where(
+      and(
+        eq(txTable.owner, userId),
+        gte(txTable.date, firstDayOfMonth.toISOString()),
+        eq(txTable.type, 'expense'),
+      ),
+    )
+    .groupBy(txTable.category)
 
   // Convert to easy mapping object: { categoryId: spentFloat }
   const currentMonthCategorySpend: Record<string, number> = {}
   for (const doc of categorySpendResult) {
-    if (doc._id) {
-      currentMonthCategorySpend[doc._id.toString()] = doc.spentCents / 100
+    if (doc.categoryId) {
+      currentMonthCategorySpend[doc.categoryId.toString()] = (doc.spentCents as number) / 100
     }
   }
 

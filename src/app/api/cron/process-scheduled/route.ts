@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { NextResponse } from 'next/server'
+import { calculateNextDueDate } from '@/lib/utils/dateMath'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,27 +52,14 @@ export async function GET(request: Request) {
         })
 
         // Step 2: ONLY after step 1 succeeds, safely calculate next due date
-        const currentDueDate = new Date(st.nextDueDate)
-        // Ensure calculations happen in UTC so dates don't drift across timezones
-        let nextYear = currentDueDate.getUTCFullYear()
-        let nextMonth = currentDueDate.getUTCMonth()
-        let nextDate = currentDueDate.getUTCDate()
-
-        if (st.frequency === 'weekly') {
-          nextDate += 7
-        } else if (st.frequency === 'monthly') {
-          nextMonth += 1
-        } else if (st.frequency === 'yearly') {
-          nextYear += 1
-        }
-
-        const calculatedNextDate = new Date(Date.UTC(nextYear, nextMonth, nextDate))
+        // Note: The math utility returns a full ISO string, we just want the YYYY-MM-DD prefix for our schema
+        const calculatedNextDateStr = calculateNextDueDate(st.nextDueDate, st.frequency)
 
         await payload.update({
           collection: 'scheduled-transactions',
           id: st.id,
           data: {
-            nextDueDate: calculatedNextDate.toISOString().split('T')[0],
+            nextDueDate: calculatedNextDateStr.split('T')[0],
           },
           overrideAccess: true,
         })

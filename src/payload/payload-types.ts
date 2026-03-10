@@ -3611,6 +3611,7 @@ export interface Account {
    * Account color (hex)
    */
   color?: string | null;
+  status?: ('active' | 'deleted') | null;
   owner?: (string | null) | Member;
   updatedAt: string;
   createdAt: string;
@@ -3671,6 +3672,8 @@ export interface Budget {
   category: string | Category;
   amount: number;
   locked?: boolean | null;
+  status?: ('active' | 'deleted') | null;
+  currentSpend?: number | null;
   /**
    * ID to group recurring budgets together
    */
@@ -3736,6 +3739,8 @@ export interface Transaction {
   account: string | Account;
   toAccount?: (string | null) | Account;
   category?: (string | null) | Category;
+  budget?: (string | null) | Budget;
+  status?: ('active' | 'deleted') | null;
   owner?: (string | null) | Member;
   updatedAt: string;
   createdAt: string;
@@ -4046,6 +4051,7 @@ export interface AccountsSelect<T extends boolean = true> {
   creditLimit?: T;
   currency?: T;
   color?: T;
+  status?: T;
   owner?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -4061,6 +4067,8 @@ export interface BudgetsSelect<T extends boolean = true> {
   category?: T;
   amount?: T;
   locked?: T;
+  status?: T;
+  currentSpend?: T;
   recurrenceGroupId?: T;
   recurrenceType?: T;
   owner?: T;
@@ -4137,6 +4145,8 @@ export interface TransactionsSelect<T extends boolean = true> {
   account?: T;
   toAccount?: T;
   category?: T;
+  budget?: T;
+  status?: T;
   owner?: T;
   updatedAt?: T;
   createdAt?: T;

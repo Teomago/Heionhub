@@ -84,9 +84,11 @@ export async function deleteAccount(id: string) {
   const { user, payload } = await assertUser()
 
   try {
-    await payload.delete({
+    await payload.update({
       collection: 'accounts',
       id,
+      data: { status: 'deleted' },
+      overrideAccess: true,
     })
   } catch (error) {
     console.error(error)

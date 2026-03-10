@@ -1,13 +1,14 @@
 import type { CollectionConfig } from 'payload'
 
 import { access } from '@/payload/utils/access'
+import { isActiveOwner } from '../access/isActiveOwner'
 
 export const Accounts: CollectionConfig = {
   slug: 'accounts',
   access: {
     create: ({ req: { user } }) => !!user,
     delete: access.owner('owner').adminLock(),
-    read: access.owner('owner'),
+    read: isActiveOwner,
     update: access.owner('owner').adminLock(),
   },
   admin: {
@@ -68,6 +69,19 @@ export const Accounts: CollectionConfig = {
       required: false,
       admin: {
         description: 'Account color (hex)',
+      },
+    },
+    {
+      name: 'status',
+      type: 'select',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Deleted', value: 'deleted' },
+      ],
+      defaultValue: 'active',
+      index: true,
+      admin: {
+        position: 'sidebar',
       },
     },
     {

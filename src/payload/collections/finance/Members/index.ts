@@ -15,7 +15,10 @@ export const Members: CollectionConfig = {
     useAsTitle: 'email',
     group: 'Finance',
   },
-  auth: true,
+  auth: {
+    maxLoginAttempts: 5,
+    lockTime: 600000,
+  },
   fields: [
     {
       name: 'firstName',

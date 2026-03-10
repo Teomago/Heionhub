@@ -2,13 +2,16 @@ import type { CollectionConfig } from 'payload'
 
 import { access } from '@/payload/utils/access'
 import { updateAccountBalance, afterDeleteTransaction } from './hooks/updateAccountBalance'
+import { checkBudgetLimits } from './hooks/checkBudgetLimits'
+import { updateBudgetSpend } from './hooks/updateBudgetSpend'
+import { isActiveOwner } from '../access/isActiveOwner'
 
 export const Transactions: CollectionConfig = {
   slug: 'transactions',
   access: {
     create: ({ req: { user } }) => !!user,
     delete: access.owner('owner').adminLock(),
-    read: access.owner('owner'), // Removed adminLock so super-admins can view
+    read: isActiveOwner, // Read policy filters out soft deletes automatically
     update: access.owner('owner').adminLock(),
   },
   admin: {
@@ -66,6 +69,27 @@ export const Transactions: CollectionConfig = {
       relationTo: 'categories',
     },
     {
+      name: 'budget',
+      type: 'relationship',
+      relationTo: 'budgets',
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'status',
+      type: 'select',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Deleted', value: 'deleted' },
+      ],
+      defaultValue: 'active',
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'owner',
       type: 'relationship',
       relationTo: 'members',
@@ -86,7 +110,8 @@ export const Transactions: CollectionConfig = {
     },
   ],
   hooks: {
-    afterChange: [updateAccountBalance],
+    beforeChange: [checkBudgetLimits],
+    afterChange: [updateAccountBalance, updateBudgetSpend],
     afterDelete: [afterDeleteTransaction],
   },
 }

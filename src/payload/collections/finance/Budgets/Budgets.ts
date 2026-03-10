@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { access } from '@/payload/utils/access'
+import { isActiveOwner } from '../access/isActiveOwner'
 
 export const Budgets: CollectionConfig = {
   slug: 'budgets',
@@ -12,7 +13,7 @@ export const Budgets: CollectionConfig = {
   access: {
     create: ({ req: { user } }) => !!user,
     delete: access.owner('owner').adminLock(),
-    read: access.owner('owner').adminLock(),
+    read: isActiveOwner,
     update: access.owner('owner').adminLock(),
   },
   hooks: {
@@ -78,6 +79,28 @@ export const Budgets: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       label: 'Locked (Prevent Spending)',
+    },
+    {
+      name: 'status',
+      type: 'select',
+      options: [
+        { label: 'Active', value: 'active' },
+        { label: 'Deleted', value: 'deleted' },
+      ],
+      defaultValue: 'active',
+      index: true,
+      admin: {
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'currentSpend',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+      },
     },
     {
       name: 'recurrenceGroupId',

@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 import { revalidateTag } from 'next/cache'
+import { sql, eq } from 'drizzle-orm'
 
 // Helper to determine if we are adding or subtracting from the primary account
 function calculateDirectionalAmount(
@@ -22,12 +23,17 @@ async function applyDelta(payload: any, accountId: string | undefined, amountToI
   if (amountToInject === 0 || !accountId) return
 
   try {
-    // Access the underlying Mongoose Model via Payload's MongoDB Adapter
-    const AccountsModel = payload.db.collections['accounts']
+    // Access the underlying Drizzle ORM via Payload's Postgres Adapter
+    const accountsTable = payload.db.tables['accounts']
 
-    if (AccountsModel) {
+    if (accountsTable) {
       // Atomically increment the balance, preventing read-write race conditions
-      await AccountsModel.updateOne({ _id: accountId }, { $inc: { balance: amountToInject } })
+      await payload.db.drizzle
+        .update(accountsTable)
+        .set({
+          balance: sql`${accountsTable.balance} + ${amountToInject}`,
+        })
+        .where(eq(accountsTable.id, accountId))
     }
   } catch (error) {
     console.error('Failed to apply atomic delta to account balance:', error)

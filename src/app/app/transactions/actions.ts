@@ -4,6 +4,8 @@ import { assertUser } from '@/lib/auth/assertUser'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { Member } from '@/payload/payload-types'
+import * as Sentry from '@sentry/nextjs'
+import { APIError } from '@/lib/utils/APIError'
 
 const createTransactionSchema = z.object({
   amount: z.number(),
@@ -16,38 +18,44 @@ const createTransactionSchema = z.object({
 })
 
 export async function createTransaction(data: z.infer<typeof createTransactionSchema>) {
-  const { user, payload } = await assertUser()
-
-  const account = await payload.findByID({
-    collection: 'accounts',
-    id: data.account,
-  })
-
-  // Safe checks for owner
-  const accountOwnerId =
-    account && typeof account.owner === 'object' ? (account.owner as Member).id : account?.owner
-
-  if (!account || accountOwnerId !== user.id) {
-    throw new Error('Unauthorized access to account')
+  let authContext
+  try {
+    authContext = await assertUser()
+  } catch (e) {
+    return { error: 'Unauthorized' }
   }
-
-  if (data.type === 'transfer' && data.toAccount) {
-    const toAccount = await payload.findByID({
-      collection: 'accounts',
-      id: data.toAccount,
-    })
-
-    const toAccountOwnerId =
-      toAccount && typeof toAccount.owner === 'object'
-        ? (toAccount.owner as Member).id
-        : toAccount?.owner
-
-    if (!toAccount || toAccountOwnerId !== user.id) {
-      throw new Error('Unauthorized access to destination account')
-    }
-  }
+  const { user, payload } = authContext
 
   try {
+    const account = await payload.findByID({
+      collection: 'accounts',
+      id: data.account,
+    })
+
+    // Safe checks for owner
+    const accountOwnerId =
+      account && typeof account.owner === 'object' ? (account.owner as Member).id : account?.owner
+
+    if (!account || accountOwnerId !== user.id) {
+      throw new APIError('Unauthorized access to account', 403, true)
+    }
+
+    if (data.type === 'transfer' && data.toAccount) {
+      const toAccount = await payload.findByID({
+        collection: 'accounts',
+        id: data.toAccount,
+      })
+
+      const toAccountOwnerId =
+        toAccount && typeof toAccount.owner === 'object'
+          ? (toAccount.owner as Member).id
+          : toAccount?.owner
+
+      if (!toAccount || toAccountOwnerId !== user.id) {
+        throw new APIError('Unauthorized access to destination account', 403, true)
+      }
+    }
+
     const amountInCents = Math.round(data.amount * 100)
 
     await payload.create({
@@ -63,23 +71,29 @@ export async function createTransaction(data: z.infer<typeof createTransactionSc
         owner: user.id,
       },
     })
-  } catch (error) {
-    console.error(error)
-    return { error: 'Failed to create transaction' }
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+      extra: { inputData: data },
+    })
+
+    if (error instanceof APIError && error.isPublic) {
+      return { error: error.message }
+    }
+    return { error: 'An unexpected application error occurred. Our team has been notified.' }
   }
 
   redirect('/app/transactions')
 }
 
 export async function deleteTransaction(id: string) {
-  let user, payload
+  let authContext
   try {
-    const auth = await assertUser()
-    user = auth.user
-    payload = auth.payload
+    authContext = await assertUser()
   } catch (e) {
     return { error: 'Unauthorized' }
   }
+  const { user, payload } = authContext
 
   try {
     const existing = await payload.findByID({
@@ -93,41 +107,40 @@ export async function deleteTransaction(id: string) {
           ? existing.owner.id
           : existing.owner
         : null
+
     if (!existing || ownerId !== user.id) {
-      return { error: 'Transaction not found or unauthorized' }
+      throw new APIError('Transaction not found or unauthorized', 404, true)
     }
 
-    await payload.delete({
+    await payload.update({
       collection: 'transactions',
       id,
+      data: { status: 'deleted' },
+      overrideAccess: true,
     })
 
     return { success: true }
-  } catch (error) {
-    console.error(error)
-    return { error: 'Failed to delete transaction' }
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+      extra: { transactionId: id },
+    })
+
+    if (error instanceof APIError && error.isPublic) {
+      return { error: error.message }
+    }
+    return { error: 'An unexpected application error occurred. Our team has been notified.' }
   }
 }
 
 export async function updateTransaction(id: string, data: z.infer<typeof createTransactionSchema>) {
-  // For simplicity, we create a new transaction and delete the old one to handle all balance updates correctly
-  // or we can implement the diff logic.
-  // Deleting old and creating new is safer for balance consistency but changes ID (if we were creating new).
-  // Here we want to update. Use delete logic (revert) then create logic (apply) but keep ID?
-  // Payload update doesn't automatically handle side effects unless we code hooks.
-  // Since we are doing it in actions, let's:
-  // 1. Revert old transaction effects.
-  // 2. Update transaction data.
-  // 3. Apply new transaction effects.
-
-  let user, payload
+  let authContext
   try {
-    const auth = await assertUser()
-    user = auth.user
-    payload = auth.payload
+    authContext = await assertUser()
   } catch (e) {
     return { error: 'Unauthorized' }
   }
+  const { user, payload } = authContext
 
   try {
     const existing = await payload.findByID({
@@ -143,7 +156,7 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
         : null
 
     if (!existing || ownerId !== user.id) {
-      return { error: 'Transaction not found or unauthorized' }
+      throw new APIError('Transaction not found or unauthorized', 404, true)
     }
 
     const newAmountInCents = Math.round(data.amount * 100)
@@ -161,9 +174,16 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
     })
 
     return { success: true }
-  } catch (error) {
-    console.error(error)
-    return { error: 'Failed to update transaction' }
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+      extra: { transactionId: id, inputData: data },
+    })
+
+    if (error instanceof APIError && error.isPublic) {
+      return { error: error.message }
+    }
+    return { error: 'An unexpected application error occurred. Our team has been notified.' }
   }
 }
 
@@ -175,14 +195,13 @@ export async function exportFilteredTransactions(params: {
   account?: string
   sort?: string
 }) {
-  let user, payload
+  let authContext
   try {
-    const auth = await assertUser()
-    user = auth.user
-    payload = auth.payload
+    authContext = await assertUser()
   } catch (e) {
     return { success: false, error: 'Unauthorized' }
   }
+  const { user, payload } = authContext
 
   try {
     const where: any = {
@@ -239,7 +258,6 @@ export async function exportFilteredTransactions(params: {
       }
     }
 
-    // We increase limits for bulk exporting vs paginated viewing
     const transactions = await payload.find({
       collection: 'transactions',
       where,
@@ -248,7 +266,6 @@ export async function exportFilteredTransactions(params: {
       depth: 1,
     })
 
-    // Transform into exactly the structure our Import feature accepts
     const flatData = transactions.docs.map((tx) => {
       const accountObj = typeof tx.account === 'object' ? tx.account : null
       const categoryObj = typeof tx.category === 'object' ? tx.category : null
@@ -264,8 +281,17 @@ export async function exportFilteredTransactions(params: {
     })
 
     return { success: true, data: flatData }
-  } catch (error) {
-    console.error('Export Error:', error)
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+      extra: { params },
+    })
+
+    // Check for APIError for symmetry, though standard export errors may also be unexpected
+    if (error instanceof APIError && error.isPublic) {
+      return { success: false, error: error.message }
+    }
+
     return { success: false, error: 'Critical error rendering export query.' }
   }
 }
@@ -282,72 +308,85 @@ export async function getTransactionsPaginated(
   page: number = 1,
   limit: number = 50,
 ) {
-  const { user, payload } = await assertUser()
-
-  const where: any = {
-    and: [{ owner: { equals: user.id } }],
+  let authContext
+  try {
+    authContext = await assertUser()
+  } catch (e) {
+    throw new Error('Unauthorized')
   }
+  const { user, payload } = authContext
 
-  if (params.description) {
-    where.and.push({ description: { contains: params.description } })
-  }
-
-  if (params.type && params.type !== 'all') {
-    where.and.push({ type: { equals: params.type } })
-  }
-
-  if (params.category && params.category !== 'all') {
-    where.and.push({ category: { equals: params.category } })
-  }
-
-  if (params.account && params.account !== 'all') {
-    where.and.push({ account: { equals: params.account } })
-  }
-
-  if (params.dateRange && params.dateRange !== 'all') {
-    const now = new Date()
-    let startDate: Date | undefined
-    let endDate: Date | undefined
-
-    switch (params.dateRange) {
-      case 'thisMonth':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-        break
-      case 'lastMonth':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-        endDate = new Date(now.getFullYear(), now.getMonth(), 0)
-        break
-      case 'last3Months':
-        startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-        break
-      case 'thisYear':
-        startDate = new Date(now.getFullYear(), 0, 1)
-        endDate = new Date(now.getFullYear(), 11, 31)
-        break
+  try {
+    const where: any = {
+      and: [{ owner: { equals: user.id } }],
     }
 
-    if (startDate && endDate) {
-      where.and.push({
-        date: {
-          greater_than_equal: startDate.toISOString(),
-          less_than_equal: endDate.toISOString(),
-        },
-      })
+    if (params.description) {
+      where.and.push({ description: { contains: params.description } })
     }
+
+    if (params.type && params.type !== 'all') {
+      where.and.push({ type: { equals: params.type } })
+    }
+
+    if (params.category && params.category !== 'all') {
+      where.and.push({ category: { equals: params.category } })
+    }
+
+    if (params.account && params.account !== 'all') {
+      where.and.push({ account: { equals: params.account } })
+    }
+
+    if (params.dateRange && params.dateRange !== 'all') {
+      const now = new Date()
+      let startDate: Date | undefined
+      let endDate: Date | undefined
+
+      switch (params.dateRange) {
+        case 'thisMonth':
+          startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+          break
+        case 'lastMonth':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+          endDate = new Date(now.getFullYear(), now.getMonth(), 0)
+          break
+        case 'last3Months':
+          startDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+          endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+          break
+        case 'thisYear':
+          startDate = new Date(now.getFullYear(), 0, 1)
+          endDate = new Date(now.getFullYear(), 11, 31)
+          break
+      }
+
+      if (startDate && endDate) {
+        where.and.push({
+          date: {
+            greater_than_equal: startDate.toISOString(),
+            less_than_equal: endDate.toISOString(),
+          },
+        })
+      }
+    }
+
+    const transactions = await payload.find({
+      collection: 'transactions',
+      where,
+      sort: params.sort || '-date',
+      limit,
+      page,
+      depth: 1,
+    })
+
+    return JSON.parse(JSON.stringify(transactions))
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+      extra: { params, page, limit },
+    })
+
+    throw error // Let the error boundary catch it since data-fetching throws rather than returns error strings
   }
-
-  const transactions = await payload.find({
-    collection: 'transactions',
-    where,
-    sort: params.sort || '-date',
-    limit,
-    page,
-    depth: 1,
-  })
-
-  // We need to return plain objects without Payload abstractions (like Document IDs in memory)
-  // Payload docs are mostly plain, but better to be safe with JSON serialization
-  return JSON.parse(JSON.stringify(transactions))
 }

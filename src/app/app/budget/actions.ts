@@ -115,9 +115,11 @@ export async function deleteBudget(id: string) {
   const { user, payload } = await assertUser()
 
   try {
-    await payload.delete({
+    await payload.update({
       collection: 'budgets',
       id,
+      data: { status: 'deleted' },
+      overrideAccess: true,
     })
   } catch (error) {
     console.error(error)

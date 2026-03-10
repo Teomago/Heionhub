@@ -13,7 +13,10 @@ export const Users: CollectionConfig = {
     singular: getTranslation('users:singular'),
     plural: getTranslation('users:plural'),
   },
-  auth: true,
+  auth: {
+    maxLoginAttempts: 5,
+    lockTime: 600000,
+  },
   admin: {
     useAsTitle: 'name',
     group: adminMenuGroups.settings,
