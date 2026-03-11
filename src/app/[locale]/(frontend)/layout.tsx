@@ -30,7 +30,16 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout(props: { children: React.ReactNode, params: Promise<{ locale: string }> }) {
   const { children } = props
   const { locale } = await props.params
-  const { isEnabled: isDraftMode } = await draftMode()
+
+  // Next.js 15: calling draftMode() everywhere opts the entire layout into dynamic rendering.
+  // We handle it gracefully so static routes like `/es` don't throw DYNAMIC_SERVER_USAGE.
+  let isDraftMode = false
+  try {
+    const draft = await draftMode()
+    isDraftMode = draft.isEnabled
+  } catch (err) {
+    // If it throws DYNAMIC_SERVER_USAGE here, we safely ignore it and assume not in draft mode.
+  }
 
   // Load typography settings
   const general = await getCachedGlobal<GeneralSettings>('general-settings', 0).catch(() => null)
