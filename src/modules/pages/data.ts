@@ -8,13 +8,14 @@ import type { PageData } from './types'
  * @param params - Route params from Next.js catch-all route
  * @returns The page document, or null if not found
  */
-export async function getPage(params: { segments?: string[], draft?: boolean }): Promise<PageData | null> {
+export async function getPage(params: { segments?: string[], draft?: boolean, locale?: string }): Promise<PageData | null> {
   const pathname = resolvePathname(params)
   const payload = await getPayload()
 
   const result = await payload.find({
     collection: 'pages',
     draft: params.draft,
+    ...(params.locale ? { locale: params.locale as any } : {}),
     where: {
       pathname: { equals: pathname },
     },

@@ -5,12 +5,13 @@ import type { ArticleData, PaginatedResult } from './types'
 /**
  * Fetch a single article by slug.
  */
-export async function getArticle(slug: string, draft?: boolean): Promise<ArticleData | null> {
+export async function getArticle(slug: string, draft?: boolean, locale?: string): Promise<ArticleData | null> {
   const payload = await getPayload()
 
   const result = await payload.find({
     collection: 'articles',
     draft,
+    ...(locale ? { locale: locale as any } : {}),
     where: {
       slug: { equals: slug },
     },
@@ -33,9 +34,10 @@ export async function getArticles(
     tags?: (string | number)[]
     where?: Where
     draft?: boolean
+    locale?: string
   } = {},
 ): Promise<PaginatedResult<ArticleData>> {
-  const { page = 1, limit = 12, sort = '-publishedDate', tags, draft } = options
+  const { page = 1, limit = 12, sort = '-publishedDate', tags, draft, locale } = options
   const payload = await getPayload()
 
   const where: Where = {}
@@ -51,6 +53,7 @@ export async function getArticles(
   const result = await payload.find({
     collection: 'articles',
     draft,
+    ...(locale ? { locale: locale as any } : {}),
     page,
     limit,
     sort,

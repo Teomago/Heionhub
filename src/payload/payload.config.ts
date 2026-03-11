@@ -3,8 +3,8 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
-import { de } from '@payloadcms/translations/languages/de'
 import { en } from '@payloadcms/translations/languages/en'
+import { es } from '@payloadcms/translations/languages/es'
 import { collections } from './collections'
 import { globals } from './globals'
 import { translations } from './i18n'
@@ -23,6 +23,11 @@ const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  localization: {
+    locales: ['en', 'es'],
+    defaultLocale: 'en',
+    fallback: true,
+  },
   email: brevoAdapter(),
   admin: {
     user: 'users',
@@ -32,20 +37,20 @@ export default buildConfig({
     livePreview,
   },
   i18n: {
-    supportedLanguages: { en, de },
+    supportedLanguages: { en, es },
     translations: {
       ...translations,
-      de: {
-        ...translations.de,
+      es: {
+        ...translations.es,
         cmdkPlugin: {
-          loading: 'Lädt...',
-          navigate: 'zum Navigieren',
-          noResults: 'Keine Ergebnisse gefunden',
-          open: 'zum Öffnen',
-          search: 'Sammlungen, Globals durchsuchen...',
-          searchIn: 'Suchen in {{label}}',
-          searchInCollection: 'in Sammlung suchen',
-          searchShort: 'Suchen',
+          loading: 'Cargando...',
+          navigate: 'para navegar',
+          noResults: 'No se encontraron resultados',
+          open: 'para abrir',
+          search: 'Buscar en colecciones y variables globales...',
+          searchIn: 'Buscar en {{label}}',
+          searchInCollection: 'buscar en la colección',
+          searchShort: 'Buscar',
         },
       },
     },

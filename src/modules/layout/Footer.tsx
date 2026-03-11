@@ -53,8 +53,8 @@ const socialIcons: Record<string, React.ReactNode> = {
  * Three columns: left (navigation), middle (contact & social), right (legal + copyright).
  * All configurable from the Footer global in the admin panel.
  */
-export async function Footer() {
-  const footer = await getCachedGlobal<FooterSettings>('footer', 2).catch(() => null)
+export async function Footer({ locale }: { locale?: string }) {
+  const footer = await getCachedGlobal<FooterSettings>('footer', 2, locale).catch(() => null)
 
   const navigation = footer?.navigation
   const contact = footer?.contact

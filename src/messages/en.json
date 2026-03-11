@@ -1,0 +1,54 @@
+{
+  "Sidebar": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "transactions": "Transactions",
+    "budget": "Budget",
+    "scheduled": "Scheduled",
+    "reports": "Reports",
+    "importCsv": "Import CSV",
+    "categories": "Categories"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "income": "Income",
+    "expense": "Expense",
+    "transfer": "Transfer",
+    "totalBalance": "Total Balance",
+    "budgetHealth": "Budget Health",
+    "noBudgets": "No active budgets.",
+    "upcomingBills": "Upcoming Bills",
+    "noUpcoming": "No upcoming bills.",
+    "due": "Due",
+    "recentActivity": "Recent Activity",
+    "noTransactions": "No recent transactions.",
+    "noDescription": "No description",
+    "uncategorized": "Uncategorized",
+    "takeTour": "Take a Tour"
+  },
+  "Common": {
+    "active": "Active",
+    "deleted": "Deleted",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "create": "Create",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "noResults": "No results found.",
+    "amount": "Amount",
+    "date": "Date",
+    "description": "Description",
+    "type": "Type",
+    "status": "Status",
+    "category": "Category",
+    "account": "Account",
+    "name": "Name"
+  },
+  "LanguageSwitcher": {
+    "en": "EN",
+    "es": "ES"
+  }
+}

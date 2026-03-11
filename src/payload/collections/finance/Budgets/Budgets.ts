@@ -5,6 +5,10 @@ import { isActiveOwner } from '../access/isActiveOwner'
 
 export const Budgets: CollectionConfig = {
   slug: 'budgets',
+  labels: {
+    singular: { en: 'Budget', es: 'Presupuesto' },
+    plural: { en: 'Budgets', es: 'Presupuestos' },
+  },
   admin: {
     useAsTitle: 'title',
     group: 'Finance',
@@ -48,18 +52,19 @@ export const Budgets: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
-      label: 'Budget Name (Optional)',
+      label: { en: 'Budget Name (Optional)', es: 'Nombre del Presupuesto (Opcional)' },
       admin: {
-        description: 'e.g. "Main Groceries" or "Holiday Fund"',
+        description: { en: 'e.g. "Main Groceries" or "Holiday Fund"', es: 'ej. "Supermercado Principal" o "Fondo Vacaciones"' } as any,
       },
     },
     {
       name: 'month',
       type: 'text',
       required: true,
-      defaultValue: () => new Date().toISOString().slice(0, 7), // YYYY-MM
+      label: { en: 'Month', es: 'Mes' },
+      defaultValue: () => new Date().toISOString().slice(0, 7),
       admin: {
-        description: 'YYYY-MM format',
+        description: { en: 'YYYY-MM format', es: 'Formato AAAA-MM' } as any,
       },
     },
     {
@@ -67,25 +72,27 @@ export const Budgets: CollectionConfig = {
       type: 'relationship',
       relationTo: 'categories',
       required: true,
+      label: { en: 'Category', es: 'Categoría' },
     },
     {
       name: 'amount',
       type: 'number',
       required: true,
-      label: 'Budget Limit (Cents)',
+      label: { en: 'Budget Limit (Cents)', es: 'Límite del Presupuesto (Centavos)' },
     },
     {
       name: 'locked',
       type: 'checkbox',
       defaultValue: false,
-      label: 'Locked (Prevent Spending)',
+      label: { en: 'Locked (Prevent Spending)', es: 'Bloqueado (Prevenir Gastos)' },
     },
     {
       name: 'status',
       type: 'select',
+      label: { en: 'Status', es: 'Estado' },
       options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Deleted', value: 'deleted' },
+        { label: { en: 'Active', es: 'Activo' }, value: 'active' },
+        { label: { en: 'Deleted', es: 'Eliminado' }, value: 'deleted' },
       ],
       defaultValue: 'active',
       index: true,
@@ -97,6 +104,7 @@ export const Budgets: CollectionConfig = {
       name: 'currentSpend',
       type: 'number',
       defaultValue: 0,
+      label: { en: 'Current Spend', es: 'Gasto Actual' },
       admin: {
         readOnly: true,
         position: 'sidebar',
@@ -106,18 +114,20 @@ export const Budgets: CollectionConfig = {
       name: 'recurrenceGroupId',
       type: 'text',
       index: true,
+      label: { en: 'Recurrence Group ID', es: 'ID de Grupo de Recurrencia' },
       admin: {
         readOnly: true,
-        description: 'ID to group recurring budgets together',
+        description: { en: 'ID to group recurring budgets together', es: 'ID para agrupar presupuestos recurrentes' } as any,
       },
     },
     {
       name: 'recurrenceType',
       type: 'select',
+      label: { en: 'Recurrence Type', es: 'Tipo de Recurrencia' },
       options: [
-        { label: 'Monthly (One-time)', value: 'monthly' },
-        { label: 'Fixed Duration', value: 'fixed' },
-        { label: 'Indefinite', value: 'indefinite' },
+        { label: { en: 'Monthly (One-time)', es: 'Mensual (Única vez)' }, value: 'monthly' },
+        { label: { en: 'Fixed Duration', es: 'Duración Fija' }, value: 'fixed' },
+        { label: { en: 'Indefinite', es: 'Indefinido' }, value: 'indefinite' },
       ],
       defaultValue: 'monthly',
     },

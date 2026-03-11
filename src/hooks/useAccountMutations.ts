@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { deleteAccount, updateAccount } from '@/app/app/accounts/actions'
+import { deleteAccount, updateAccount } from '@/app/[locale]/app/accounts/actions'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'

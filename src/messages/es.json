@@ -1,0 +1,54 @@
+{
+  "Sidebar": {
+    "dashboard": "Panel General",
+    "accounts": "Cuentas",
+    "transactions": "Transacciones",
+    "budget": "Presupuesto",
+    "scheduled": "Programadas",
+    "reports": "Reportes",
+    "importCsv": "Importar CSV",
+    "categories": "Categorías"
+  },
+  "Dashboard": {
+    "title": "Panel General",
+    "income": "Ingreso",
+    "expense": "Gasto",
+    "transfer": "Transferencia",
+    "totalBalance": "Saldo Total",
+    "budgetHealth": "Salud del Presupuesto",
+    "noBudgets": "No hay presupuestos activos.",
+    "upcomingBills": "Próximos Pagos",
+    "noUpcoming": "No hay próximos pagos.",
+    "due": "Vence",
+    "recentActivity": "Actividad Reciente",
+    "noTransactions": "No hay transacciones recientes.",
+    "noDescription": "Sin descripción",
+    "uncategorized": "Sin categoría",
+    "takeTour": "Hacer un Tour"
+  },
+  "Common": {
+    "active": "Activo",
+    "deleted": "Eliminado",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "create": "Crear",
+    "loading": "Cargando...",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "noResults": "No se encontraron resultados.",
+    "amount": "Monto",
+    "date": "Fecha",
+    "description": "Descripción",
+    "type": "Tipo",
+    "status": "Estado",
+    "category": "Categoría",
+    "account": "Cuenta",
+    "name": "Nombre"
+  },
+  "LanguageSwitcher": {
+    "en": "EN",
+    "es": "ES"
+  }
+}

@@ -4,6 +4,10 @@ import { access } from '@/payload/utils/access'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
+  labels: {
+    singular: { en: 'Category', es: 'Categoría' },
+    plural: { en: 'Categories', es: 'Categorías' },
+  },
   admin: {
     useAsTitle: 'name',
     group: 'Finance',
@@ -44,35 +48,40 @@ export const Categories: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+      label: { en: 'Name', es: 'Nombre' },
     },
     {
       name: 'type',
       type: 'select',
       required: true,
+      label: { en: 'Type', es: 'Tipo' },
       options: [
-        { label: 'Income', value: 'income' },
-        { label: 'Expense', value: 'expense' },
-        { label: 'Transfer', value: 'transfer' }, // Transfer category? usually transfers don't have categories, or "Transfer" is the category.
+        { label: { en: 'Income', es: 'Ingreso' }, value: 'income' },
+        { label: { en: 'Expense', es: 'Gasto' }, value: 'expense' },
+        { label: { en: 'Transfer', es: 'Transferencia' }, value: 'transfer' },
       ],
     },
     {
       name: 'icon',
       type: 'text',
+      label: { en: 'Icon', es: 'Ícono' },
       admin: {
-        description: 'Lucide icon name (e.g. "shopping-cart")',
+        description: { en: 'Lucide icon name (e.g. "shopping-cart")', es: 'Nombre del ícono Lucide (ej. "shopping-cart")' } as any,
       },
     },
     {
       name: 'color',
       type: 'text',
+      label: { en: 'Color', es: 'Color' },
       admin: {
-        description: 'Color hex code or Tailwind class',
+        description: { en: 'Color hex code or Tailwind class', es: 'Código hex de color o clase Tailwind' } as any,
       },
     },
     {
       name: 'isDefault',
       type: 'checkbox',
       defaultValue: false,
+      label: { en: 'Default Category', es: 'Categoría Predeterminada' },
       admin: {
         condition: ({ user }) => user?.email === 'admin@teomagoinc.co' || false, // Hide from normal users? Or just read only?
         // For now, simple hidden or read only via access control (field level)

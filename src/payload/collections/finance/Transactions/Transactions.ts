@@ -8,6 +8,10 @@ import { isActiveOwner } from '../access/isActiveOwner'
 
 export const Transactions: CollectionConfig = {
   slug: 'transactions',
+  labels: {
+    singular: { en: 'Transaction', es: 'Transacción' },
+    plural: { en: 'Transactions', es: 'Transacciones' },
+  },
   access: {
     create: ({ req: { user } }) => !!user,
     delete: access.owner('owner').adminLock(),
@@ -24,41 +28,46 @@ export const Transactions: CollectionConfig = {
       name: 'amount',
       type: 'number',
       required: true,
-      label: 'Amount (Cents)',
+      label: { en: 'Amount (Cents)', es: 'Monto (Centavos)' },
       admin: {
-        description: 'Transaction amount in cents',
+        description: { en: 'Transaction amount in cents', es: 'Monto de la transacción en centavos' } as any,
       },
     },
     {
       name: 'type',
       type: 'select',
       required: true,
+      label: { en: 'Type', es: 'Tipo' },
       options: [
-        { label: 'Income', value: 'income' },
-        { label: 'Expense', value: 'expense' },
-        { label: 'Transfer', value: 'transfer' },
+        { label: { en: 'Income', es: 'Ingreso' }, value: 'income' },
+        { label: { en: 'Expense', es: 'Gasto' }, value: 'expense' },
+        { label: { en: 'Transfer', es: 'Transferencia' }, value: 'transfer' },
       ],
     },
     {
       name: 'date',
       type: 'date',
       required: true,
+      label: { en: 'Date', es: 'Fecha' },
       defaultValue: () => new Date().toISOString(),
     },
     {
       name: 'description',
       type: 'text',
+      label: { en: 'Description', es: 'Descripción' },
     },
     {
       name: 'account',
       type: 'relationship',
       relationTo: 'accounts',
       required: true,
+      label: { en: 'Account', es: 'Cuenta' },
     },
     {
       name: 'toAccount',
       type: 'relationship',
       relationTo: 'accounts',
+      label: { en: 'To Account', es: 'Cuenta Destino' },
       admin: {
         condition: (_, siblingData) => siblingData?.type === 'transfer',
       },
@@ -67,11 +76,13 @@ export const Transactions: CollectionConfig = {
       name: 'category',
       type: 'relationship',
       relationTo: 'categories',
+      label: { en: 'Category', es: 'Categoría' },
     },
     {
       name: 'budget',
       type: 'relationship',
       relationTo: 'budgets',
+      label: { en: 'Budget', es: 'Presupuesto' },
       admin: {
         position: 'sidebar',
       },
@@ -79,9 +90,10 @@ export const Transactions: CollectionConfig = {
     {
       name: 'status',
       type: 'select',
+      label: { en: 'Status', es: 'Estado' },
       options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Deleted', value: 'deleted' },
+        { label: { en: 'Active', es: 'Activo' }, value: 'active' },
+        { label: { en: 'Deleted', es: 'Eliminado' }, value: 'deleted' },
       ],
       defaultValue: 'active',
       index: true,

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { deleteCategory, updateCategory } from '@/app/app/categories/actions'
+import { deleteCategory, updateCategory } from '@/app/[locale]/app/categories/actions'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'

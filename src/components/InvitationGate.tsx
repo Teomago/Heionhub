@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { verifyInvitation, registerMember } from '@/app/(frontend)/actions/auth'
+import { verifyInvitation, registerMember } from '@/app/[locale]/(frontend)/actions/auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'

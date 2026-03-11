@@ -6,14 +6,21 @@ import type { HeaderSettings, Media } from '@/payload-types'
 import { getLinkProps, type LinkFieldData } from '@/lib/utils/getLinkProps'
 import { isExpanded } from '@/lib/utils/isExpanded'
 import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { getPayload } from '@/lib/payload/getPayload'
 
 /**
  * Site header component.
  * Three sections: left (nav links), center (logo), right (optional CTA).
  * All configurable from the Header global in the admin panel.
  */
-export async function Header() {
-  const header = await getCachedGlobal<HeaderSettings>('header', 2).catch(() => null)
+export async function Header({ locale }: { locale?: string }) {
+  const header = await getCachedGlobal<HeaderSettings>('header', 2, locale).catch(() => null)
+
+  // Fetch Kill-Switch
+  const payload = await getPayload()
+  const siteSettings = await payload.findGlobal({ slug: 'site-settings' as any }).catch(() => null)
+  const isMultiLangEnabled = (siteSettings as any)?.enableMultiLanguage !== false
 
   const navLinks = header?.navLinks || []
   const logo = header?.logo
@@ -65,6 +72,7 @@ export async function Header() {
 
         {/* Right — CTA Button & Theme Toggle */}
         <div className="flex items-center gap-4">
+          <LanguageSwitcher isMultiLangEnabled={isMultiLangEnabled} />
           <ThemeToggle />
           {cta?.enabled && cta.link
             ? (() => {

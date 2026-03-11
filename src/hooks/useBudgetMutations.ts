@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { deleteBudget, toggleBudgetLock } from '@/app/app/budget/actions'
+import { deleteBudget, toggleBudgetLock } from '@/app/[locale]/app/budget/actions'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'

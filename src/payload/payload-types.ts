@@ -168,7 +168,7 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  fallbackLocale: null;
+  fallbackLocale: ('false' | 'none' | 'null') | false | null | ('en' | 'es') | ('en' | 'es')[];
   globals: {
     footer: FooterSettings;
     'general-settings': GeneralSettings;
@@ -176,6 +176,7 @@ export interface Config {
     'seo-settings': SEOSettings;
     'import-settings': ImportSetting;
     invitations: Invitation;
+    'site-settings': SiteSetting;
   };
   globalsSelect: {
     footer: FooterSelect<false> | FooterSelect<true>;
@@ -184,8 +185,9 @@ export interface Config {
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
     'import-settings': ImportSettingsSelect<false> | ImportSettingsSelect<true>;
     invitations: InvitationsSelect<false> | InvitationsSelect<true>;
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
   };
-  locale: null;
+  locale: 'en' | 'es';
   widgets: {
     collections: CollectionsWidget;
   };
@@ -4446,6 +4448,27 @@ export interface Invitation {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: string;
+  /**
+   * Enable bilingual routing and the frontend Language Switcher.
+   */
+  enableMultiLanguage: boolean;
+  /**
+   * The default language for new visitors.
+   */
+  defaultLanguage: 'en' | 'es';
+  /**
+   * The languages currently active on the site.
+   */
+  supportedLanguages: ('en' | 'es')[];
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
@@ -4580,6 +4603,18 @@ export interface InvitationsSelect<T extends boolean = true> {
   title?: T;
   subtitle?: T;
   mockPhrase?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  enableMultiLanguage?: T;
+  defaultLanguage?: T;
+  supportedLanguages?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

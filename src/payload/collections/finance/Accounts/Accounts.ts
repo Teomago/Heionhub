@@ -5,6 +5,10 @@ import { isActiveOwner } from '../access/isActiveOwner'
 
 export const Accounts: CollectionConfig = {
   slug: 'accounts',
+  labels: {
+    singular: { en: 'Account', es: 'Cuenta' },
+    plural: { en: 'Accounts', es: 'Cuentas' },
+  },
   access: {
     create: ({ req: { user } }) => !!user,
     delete: access.owner('owner').adminLock(),
@@ -21,17 +25,19 @@ export const Accounts: CollectionConfig = {
       name: 'name',
       type: 'text',
       required: true,
+      label: { en: 'Name', es: 'Nombre' },
     },
     {
       name: 'type',
       type: 'select',
       required: true,
+      label: { en: 'Type', es: 'Tipo' },
       options: [
-        { label: 'Checking', value: 'checking' },
-        { label: 'Savings', value: 'savings' },
-        { label: 'Credit Card', value: 'credit' },
-        { label: 'Cash', value: 'cash' },
-        { label: 'Investment', value: 'investment' },
+        { label: { en: 'Checking', es: 'Cuenta Corriente' }, value: 'checking' },
+        { label: { en: 'Savings', es: 'Ahorros' }, value: 'savings' },
+        { label: { en: 'Credit Card', es: 'Tarjeta de Crédito' }, value: 'credit' },
+        { label: { en: 'Cash', es: 'Efectivo' }, value: 'cash' },
+        { label: { en: 'Investment', es: 'Inversión' }, value: 'investment' },
       ],
     },
     {
@@ -39,22 +45,25 @@ export const Accounts: CollectionConfig = {
       type: 'number',
       required: true,
       defaultValue: 0,
+      label: { en: 'Balance', es: 'Saldo' },
       admin: {
-        description: 'Current balance in cents',
+        description: { en: 'Current balance in cents', es: 'Saldo actual en centavos' } as any,
       },
     },
     {
       name: 'creditLimit',
       type: 'number',
       required: false,
+      label: { en: 'Credit Limit', es: 'Límite de Crédito' },
       admin: {
-        description: 'Credit limit in cents (for Credit Cards)',
+        description: { en: 'Credit limit in cents (for Credit Cards)', es: 'Límite de crédito en centavos (para Tarjetas de Crédito)' } as any,
       },
     },
     {
       name: 'currency',
       type: 'select',
       defaultValue: 'USD',
+      label: { en: 'Currency', es: 'Moneda' },
       options: [
         { label: 'USD', value: 'USD' },
         { label: 'EUR', value: 'EUR' },
@@ -67,16 +76,18 @@ export const Accounts: CollectionConfig = {
       name: 'color',
       type: 'text',
       required: false,
+      label: { en: 'Color', es: 'Color' },
       admin: {
-        description: 'Account color (hex)',
+        description: { en: 'Account color (hex)', es: 'Color de la cuenta (hex)' } as any,
       },
     },
     {
       name: 'status',
       type: 'select',
+      label: { en: 'Status', es: 'Estado' },
       options: [
-        { label: 'Active', value: 'active' },
-        { label: 'Deleted', value: 'deleted' },
+        { label: { en: 'Active', es: 'Activo' }, value: 'active' },
+        { label: { en: 'Deleted', es: 'Eliminado' }, value: 'deleted' },
       ],
       defaultValue: 'active',
       index: true,
