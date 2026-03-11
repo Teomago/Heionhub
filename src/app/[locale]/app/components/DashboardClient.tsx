@@ -27,10 +27,16 @@ interface DashboardData {
   recentTransactions: Transaction[]
   categories: Category[]
   hasCompletedTour: boolean
+  userCurrency?: string
 }
 
 export function DashboardClient({ initialData }: { initialData: DashboardData }) {
   const t = useTranslations('Dashboard')
+  // Claude's Rule: COP fallback if user.currency is undefined or null
+  const currency = initialData.userCurrency || 'COP'
+  const formatAmount = (amount: number) =>
+    amount.toLocaleString(undefined, { style: 'currency', currency })
+
   // We'll set up a query to refetch this exact dataset every 30 seconds
   const { data: dashboard } = useQuery({
     queryKey: ['dashboard'],
@@ -106,10 +112,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
         >
           <div className="text-sm font-medium text-muted-foreground">{t('totalBalance')}</div>
           <div className="text-2xl font-bold">
-            {dashboard.totalBalance.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            })}
+            {formatAmount(dashboard.totalBalance)}
           </div>
         </div>
       </div>
@@ -166,10 +169,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
                       </div>
                     </div>
                     <div className="font-bold text-sm">
-                      {amount.toLocaleString('en-US', {
-                        style: 'currency',
-                        currency: 'USD',
-                      })}
+                      {formatAmount(amount)}
                     </div>
                   </div>
                 )
@@ -243,10 +243,7 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
                     <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto">
                       <div className={`font-bold ${colorClass}`}>
                         {sign}
-                        {amount.toLocaleString('en-US', {
-                          style: 'currency',
-                          currency: 'USD',
-                        })}
+                        {formatAmount(amount)}
                       </div>
 
                       <TransactionActions

@@ -1,6 +1,7 @@
 import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
 import { revalidateTag } from 'next/cache'
 import { sql, eq } from 'drizzle-orm'
+import * as Sentry from '@sentry/nextjs'
 
 // Helper to determine if we are adding or subtracting from the primary account
 function calculateDirectionalAmount(
@@ -36,7 +37,10 @@ async function applyDelta(payload: any, accountId: string | undefined, amountToI
         .where(eq(accountsTable.id, accountId))
     }
   } catch (error) {
-    console.error('Failed to apply atomic delta to account balance:', error)
+    Sentry.captureException(error, {
+      extra: { accountId, amountToInject, hook: 'updateAccountBalance' },
+    })
+    throw error // Rethrow so the parent transaction aborts — do NOT swallow
   }
 }
 

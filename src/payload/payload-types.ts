@@ -3637,6 +3637,10 @@ export interface Member {
    * Whether the user has completed the import tutorial on the import page.
    */
   hasCompletedImportTour?: boolean | null;
+  /**
+   * The user's preferred language for emails and system notifications.
+   */
+  preferredLocale: 'en' | 'es';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -4103,6 +4107,7 @@ export interface MembersSelect<T extends boolean = true> {
   currency?: T;
   hasCompletedTour?: T;
   hasCompletedImportTour?: T;
+  preferredLocale?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

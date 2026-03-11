@@ -1,7 +1,7 @@
 {
   "name": "eterhub",
-  "version": "1.0.0",
-  "description": "EterHub — Personal Finance & CMS Platform",
+  "version": "0.8.3",
+  "description": "EterHub — One Place to be Organized",
   "license": "MIT",
   "type": "module",
   "scripts": {

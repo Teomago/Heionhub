@@ -2,11 +2,13 @@ import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { ThemeProvider } from '@/providers/ThemeProvider'
+import { getTranslations } from 'next-intl/server'
 import '@/styles/index.css'
 
 export default async function AuthLayout(props: { children: React.ReactNode, params: Promise<{ locale: string }> }) {
   const { children } = props
   const { locale } = await props.params
+  const t = await getTranslations({ locale, namespace: 'Auth' })
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -18,10 +20,10 @@ export default async function AuthLayout(props: { children: React.ReactNode, par
               <Link href="/" className="flex items-center gap-2 group">
                 <ArrowLeft className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-                  Back to Home
+                  {t('backToHome')}
                 </span>
               </Link>
-              <div className="font-bold text-xl tracking-tight">EtherHub</div>
+              <div className="font-bold text-xl tracking-tight">EterHub</div>
             </header>
 
             {/* Main Content (Centered) */}

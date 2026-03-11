@@ -1,5 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload'
 import { sql, eq } from 'drizzle-orm'
+import * as Sentry from '@sentry/nextjs'
 
 // Helper to determine if we are adding or subtracting from the budget
 function calculateDirectionalAmount(
@@ -31,7 +32,10 @@ async function applyDelta(payload: any, budgetId: string | undefined, amountToIn
         .where(eq(budgetsTable.id, budgetId))
     }
   } catch (error) {
-    console.error('Failed to apply atomic delta to budget spend:', error)
+    Sentry.captureException(error, {
+      extra: { budgetId, amountToInject, hook: 'updateBudgetSpend' },
+    })
+    throw error // Rethrow — do NOT swallow
   }
 }
 

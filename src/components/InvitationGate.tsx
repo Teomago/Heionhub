@@ -15,6 +15,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useRouter } from 'next/navigation'
+import { useLocale } from 'next-intl'
 
 interface InvitationGateProps {
   globals: {
@@ -30,6 +31,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
   const [loading, setLoading] = useState(false)
   const [welcomeText, setWelcomeText] = useState('Bienvenido')
   const router = useRouter()
+  const locale = useLocale()
 
   const handleVerify = async () => {
     setLoading(true)
@@ -56,7 +58,7 @@ export default function InvitationGate({ globals }: InvitationGateProps) {
 
     const formData = new FormData(e.currentTarget)
     try {
-      const result = await registerMember(formData, code)
+      const result = await registerMember(formData, code, locale)
       if (result.success) {
         setStep('WELCOME')
 

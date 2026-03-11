@@ -159,6 +159,33 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
       throw new APIError('Transaction not found or unauthorized', 404, true)
     }
 
+    // Verify ownership of the NEW account (Defense in Depth — prevents IDOR on account reassignment)
+    const newAccount = await payload.findByID({
+      collection: 'accounts',
+      id: data.account,
+    })
+    const newAccountOwnerId =
+      newAccount && typeof newAccount.owner === 'object'
+        ? (newAccount.owner as Member).id
+        : newAccount?.owner
+    if (!newAccount || newAccountOwnerId !== user.id) {
+      throw new APIError('Unauthorized access to account', 403, true)
+    }
+
+    if (data.type === 'transfer' && data.toAccount) {
+      const toAccount = await payload.findByID({
+        collection: 'accounts',
+        id: data.toAccount,
+      })
+      const toAccountOwnerId =
+        toAccount && typeof toAccount.owner === 'object'
+          ? (toAccount.owner as Member).id
+          : toAccount?.owner
+      if (!toAccount || toAccountOwnerId !== user.id) {
+        throw new APIError('Unauthorized access to destination account', 403, true)
+      }
+    }
+
     const newAmountInCents = Math.round(data.amount * 100)
     await payload.update({
       collection: 'transactions',

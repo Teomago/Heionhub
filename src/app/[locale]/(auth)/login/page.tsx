@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -20,6 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const t = useTranslations('Auth')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,10 +39,10 @@ export default function LoginPage() {
         router.push('/app')
       } else {
         const data = await res.json()
-        setError(data?.errors?.[0]?.message || 'Invalid credentials.')
+        setError(data?.errors?.[0]?.message || t('invalidCredentials'))
       }
     } catch {
-      setError('Something went wrong. Please try again.')
+      setError(t('somethingWentWrong'))
     } finally {
       setLoading(false)
     }
@@ -51,15 +53,15 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="border-border bg-card text-card-foreground shadow-2xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('loginTitle')}</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Sign in to your account
+              {t('loginDescription')}
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form id="login-form" onSubmit={handleLogin} className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('email')}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -70,7 +72,7 @@ export default function LoginPage() {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('password')}</Label>
                 <Input
                   id="password"
                   type="password"
@@ -95,14 +97,21 @@ export default function LoginPage() {
               size="lg"
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? t('signingIn') : t('signIn')}
+            </Button>
+            <Button
+              variant="link"
+              className="w-full text-muted-foreground hover:text-foreground"
+              onClick={() => router.push('/forgot-password')}
+            >
+              {t('forgotPassword')}
             </Button>
             <Button
               variant="link"
               className="w-full text-muted-foreground hover:text-foreground"
               onClick={() => router.push('/join')}
             >
-              Have an invitation code?
+              {t('haveInvitation')}
             </Button>
           </CardFooter>
         </Card>

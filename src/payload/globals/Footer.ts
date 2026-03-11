@@ -25,6 +25,7 @@ export const Footer: GlobalConfig = {
           name: 'title',
           label: getTranslation('general:title'),
           type: 'text',
+          localized: true,
           defaultValue: 'Navigation',
         },
         {
@@ -38,7 +39,7 @@ export const Footer: GlobalConfig = {
               RowLabel: '@/payload/fields/link/ui/LinkRowLabel',
             },
           },
-          fields: [link({ appearances: false })],
+          fields: [link({ appearances: false, localizeLabels: true })],
         },
       ],
     },
@@ -52,6 +53,7 @@ export const Footer: GlobalConfig = {
           name: 'title',
           label: getTranslation('general:title'),
           type: 'text',
+          localized: true,
           defaultValue: 'Contact',
         },
         {
@@ -112,6 +114,7 @@ export const Footer: GlobalConfig = {
           name: 'legalName',
           label: getTranslation('footer:legalName'),
           type: 'text',
+          localized: true,
           admin: {
             description: 'Registered legal name of the organization',
           },
@@ -120,6 +123,7 @@ export const Footer: GlobalConfig = {
           name: 'title',
           label: getTranslation('general:title'),
           type: 'text',
+          localized: true,
           defaultValue: 'Legal',
         },
         {
@@ -133,12 +137,13 @@ export const Footer: GlobalConfig = {
               RowLabel: '@/payload/fields/link/ui/LinkRowLabel',
             },
           },
-          fields: [link({ appearances: false })],
+          fields: [link({ appearances: false, localizeLabels: true })],
         },
         {
           name: 'copyright',
           label: getTranslation('footer:copyright'),
           type: 'text',
+          localized: true,
           admin: {
             description: getTranslation('footer:copyrightDescription'),
           },

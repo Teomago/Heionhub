@@ -37,10 +37,10 @@ export async function verifyInvitation(code: string) {
   return { success: true }
 }
 
-export async function registerMember(formData: FormData, invitationCode: string) {
+export async function registerMember(formData: FormData, invitationCode: string, locale: string = 'en') {
   const payload = await getPayload({ config })
 
-  // 1. Verify code again just in case
+  // 1. Verify code (outside transaction — read-only)
   const verify = await verifyInvitation(invitationCode)
   if (!verify.success) {
     return verify
@@ -58,8 +58,13 @@ export async function registerMember(formData: FormData, invitationCode: string)
     return { success: false, error: 'PASSWORDS_DO_NOT_MATCH', message: 'Passwords do not match.' }
   }
 
+  // 2. Begin atomic transaction — member creation + code burn must both succeed or both fail
+  const req = { payload } as any
+  const transactionID = await payload.db.beginTransaction()
+  req.transactionID = transactionID
+
   try {
-    // 2. Create Member
+    // 3. Create Member (within transaction)
     await payload.create({
       collection: 'members',
       data: {
@@ -69,12 +74,13 @@ export async function registerMember(formData: FormData, invitationCode: string)
         secondName,
         lastName,
         secondLastName,
-        currency: 'USD',
+        currency: 'COP',
+        preferredLocale: locale,
       },
+      req,
     })
 
-    // 3. Mark code as used
-    // Find ID first
+    // 4. Mark code as used (within SAME transaction)
     const { docs } = await payload.find({
       collection: 'invitation-codes',
       where: {
@@ -82,6 +88,7 @@ export async function registerMember(formData: FormData, invitationCode: string)
           equals: invitationCode.toUpperCase(),
         },
       },
+      req,
     })
 
     if (docs.length > 0) {
@@ -91,11 +98,21 @@ export async function registerMember(formData: FormData, invitationCode: string)
         data: {
           status: 'used',
         },
+        req,
       })
+    }
+
+    // 5. Commit — both operations succeed atomically
+    if (transactionID) {
+      await payload.db.commitTransaction(transactionID)
     }
 
     return { success: true }
   } catch (error) {
+    // 6. Rollback — member is NOT created, code is NOT burned
+    if (transactionID) {
+      await payload.db.rollbackTransaction(transactionID)
+    }
     console.error('Registration error:', error)
     return { success: false, error: 'REGISTRATION_FAILED', message: 'Failed to create account.' }
   }

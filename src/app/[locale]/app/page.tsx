@@ -107,8 +107,10 @@ export default async function DashboardPage() {
   const budgetHealth = allBudgetsHealth.sort((a, b) => b.spent - a.spent).slice(0, 3)
 
   let hasCompletedTour = false
+  let userCurrency: string | undefined
   if (isMember(user)) {
     hasCompletedTour = user.hasCompletedTour || false
+    userCurrency = user.currency || undefined
   }
 
   const initialData = {
@@ -118,6 +120,7 @@ export default async function DashboardPage() {
     recentTransactions: recentTransactionsRaw.docs,
     categories: categories.docs,
     hasCompletedTour,
+    userCurrency,
   }
 
   return <DashboardClient initialData={initialData} />

@@ -28,7 +28,7 @@ export const Header: GlobalConfig = {
           RowLabel: '@/payload/fields/link/ui/LinkRowLabel',
         },
       },
-      fields: [link({ appearances: false })],
+      fields: [link({ appearances: false, localizeLabels: true })],
     },
     // --- Center: Logo ---
     {
@@ -61,6 +61,7 @@ export const Header: GlobalConfig = {
           name: 'text',
           label: getTranslation('header:logoText'),
           type: 'text',
+          localized: true,
           admin: {
             condition: (_, siblingData) => siblingData?.type === 'text',
           },
@@ -81,6 +82,7 @@ export const Header: GlobalConfig = {
         },
         link({
           appearances: false,
+          localizeLabels: true,
           overrides: {
             admin: {
               condition: (data: Record<string, unknown>) => {

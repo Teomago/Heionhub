@@ -12,6 +12,11 @@ const intlMiddleware = createMiddleware({
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname
 
+  // --- Static File Guard: never let favicon.ico or other dotted paths reach intl ---
+  if (path.includes('.')) {
+    return NextResponse.next()
+  }
+
   // --- Rate Limiting (best-effort, fail-open) ---
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
     const redis = new Redis({
@@ -65,7 +70,6 @@ export async function middleware(req: NextRequest) {
   return intlMiddleware(req)
 }
 
-// Exclude Next.js internals, Payload admin, API routes, and static files
 export const config = {
-  matcher: ['/', '/(en|es)/:path*', '/((?!admin|api|_next|_vercel|favicon\\.ico|.*\\..*).*)']
+  matcher: ['/', '/(en|es)/:path*', '/((?!admin|api|_next|_vercel).*)'],
 }
