@@ -17,6 +17,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // --- Next.js internal routes and preview mode bypass ---
+  if (path.startsWith('/next')) {
+    return NextResponse.next()
+  }
+
   // --- Rate Limiting (best-effort, fail-open) ---
   if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
     const redis = new Redis({
@@ -71,5 +76,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/(en|es)/:path*', '/((?!admin|api|_next|_vercel).*)'],
+  matcher: ['/', '/(en|es)/:path*', '/((?!admin|api|next|_next|_vercel).*)'],
 }
