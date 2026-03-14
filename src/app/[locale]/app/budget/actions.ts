@@ -1,6 +1,7 @@
 'use server'
 
 import { assertUser } from '@/lib/auth/assertUser'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -84,6 +85,7 @@ export async function createBudget(data: z.infer<typeof createBudgetSchema>) {
     return { error: 'Failed to create budget' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   redirect('/app/budget')
 }
 
@@ -108,6 +110,7 @@ export async function updateBudget(id: string, data: Partial<z.infer<typeof crea
     return { error: 'Failed to update budget' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   redirect('/app/budget')
 }
 
@@ -115,17 +118,31 @@ export async function deleteBudget(id: string) {
   const { user, payload } = await assertUser()
 
   try {
-    await payload.update({
+    const existing = await payload.findByID({
       collection: 'budgets',
       id,
-      data: { status: 'deleted' },
-      overrideAccess: true,
+    })
+
+    if (!existing || !existing.owner) {
+      return { error: 'Budget not found or unauthorized' }
+    }
+
+    const ownerId = typeof existing.owner === 'object' ? existing.owner.id : existing.owner
+
+    if (ownerId !== user.id) {
+      return { error: 'Budget not found or unauthorized' }
+    }
+
+    await payload.delete({
+      collection: 'budgets',
+      id,
     })
   } catch (error) {
     console.error(error)
     return { error: 'Failed to delete budget' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   redirect('/app/budget')
 }
 
@@ -145,5 +162,6 @@ export async function toggleBudgetLock(id: string, locked: boolean) {
     return { error: 'Failed to update budget status' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   redirect('/app/budget')
 }

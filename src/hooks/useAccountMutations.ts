@@ -15,6 +15,7 @@ export function useDeleteAccount() {
     },
     onSuccess: () => {
       toast.success('Account deleted')
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       router.refresh()
@@ -36,6 +37,7 @@ export function useUpdateAccount() {
     },
     onSuccess: () => {
       toast.success('Account updated')
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       router.refresh()

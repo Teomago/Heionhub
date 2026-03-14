@@ -15,6 +15,7 @@ export function useDeleteCategory() {
     },
     onSuccess: () => {
       toast.success('Category deleted')
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       router.refresh()
@@ -38,6 +39,7 @@ export function useUpdateCategory() {
     },
     onSuccess: () => {
       toast.success('Category updated')
+      queryClient.invalidateQueries({ queryKey: ['categories'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       router.refresh()

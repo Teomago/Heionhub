@@ -1,6 +1,7 @@
 'use server'
 
 import { assertUser } from '@/lib/auth/assertUser'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -30,6 +31,7 @@ export async function createCategory(data: z.infer<typeof createCategorySchema>)
     return { error: 'Failed to create category' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   return { success: true }
 }
 
@@ -55,6 +57,7 @@ export async function updateCategory(
     return { error: 'Failed to update category' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   return { success: true }
 }
 
@@ -62,6 +65,21 @@ export async function deleteCategory(id: string) {
   const { user, payload } = await assertUser()
 
   try {
+    const existing = await payload.findByID({
+      collection: 'categories',
+      id,
+    })
+
+    if (!existing || !existing.owner) {
+      return { error: 'Category not found or unauthorized' }
+    }
+
+    const ownerId = typeof existing.owner === 'object' ? existing.owner.id : existing.owner
+
+    if (ownerId !== user.id) {
+      return { error: 'Category not found or unauthorized' }
+    }
+
     await payload.delete({
       collection: 'categories',
       id,
@@ -71,5 +89,6 @@ export async function deleteCategory(id: string) {
     return { error: 'Failed to delete category' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   return { success: true }
 }

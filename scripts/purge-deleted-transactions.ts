@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
-import config from '../src/payload.config'
+import config from '@payload-config'
+import { Where } from 'payload'
 
 async function purgeTransactions() {
   const isDryRun = process.argv.includes('--dry-run')
@@ -19,11 +20,19 @@ async function purgeTransactions() {
     const validMemberIds = members.docs.map((m) => m.id)
 
     // 2. Identify soft-deleted or orphaned transactions
-    const query = {
+    const query: Where = {
       or: [
-        { status: { equals: 'deleted' } },
-        { owner: { not_in: validMemberIds } }
-      ]
+        {
+          status: {
+            equals: 'deleted',
+          },
+        },
+        {
+          owner: {
+            not_in: validMemberIds,
+          },
+        },
+      ],
     }
 
     const { totalDocs } = await payload.find({
@@ -54,8 +63,8 @@ async function purgeTransactions() {
     
     payload.logger.info(`Successfully purged ${totalDocs} transaction(s).`)
     process.exit(0)
-  } catch (error) {
-    payload.logger.error('Error occurred during purge:', error)
+  } catch (error: any) {
+    payload.logger.error(error, 'Error occurred during purge')
     process.exit(1)
   }
 }

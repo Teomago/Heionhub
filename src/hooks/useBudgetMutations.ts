@@ -15,6 +15,7 @@ export function useDeleteBudget() {
     },
     onSuccess: () => {
       toast.success('Budget deleted')
+      queryClient.invalidateQueries({ queryKey: ['budgets'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       router.refresh()
@@ -36,6 +37,7 @@ export function useToggleBudgetLock() {
     },
     onSuccess: () => {
       toast.success('Budget updated')
+      queryClient.invalidateQueries({ queryKey: ['budgets'] })
       queryClient.invalidateQueries({ queryKey: ['dashboard'] })
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
       router.refresh()

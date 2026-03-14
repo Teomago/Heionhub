@@ -1,6 +1,7 @@
 'use server'
 
 import { assertUser } from '@/lib/auth/assertUser'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
@@ -84,16 +85,45 @@ export async function deleteAccount(id: string) {
   const { user, payload } = await assertUser()
 
   try {
-    await payload.update({
+    // 1. Fetch account and verify ownership (Requirement 4)
+    const existing = await payload.findByID({
       collection: 'accounts',
       id,
-      data: { status: 'deleted' },
-      overrideAccess: true,
     })
+
+    if (!existing || !existing.owner) {
+      return { error: 'Account not found or unauthorized' }
+    }
+
+    const ownerId = typeof existing.owner === 'object' ? existing.owner.id : existing.owner
+
+    if (ownerId !== user.id) {
+      return { error: 'Account not found or unauthorized' }
+    }
+
+    // 2. Cascade delete associated transactions (Requirement 5)
+    await payload.db.deleteMany({
+      collection: 'transactions',
+      where: {
+        or: [
+          { account: { equals: id } },
+          { toAccount: { equals: id } }
+        ]
+      }
+    })
+
+    // 3. Perform hard delete of the account (Requirement 3)
+    await payload.delete({
+      collection: 'accounts',
+      id,
+    })
+
+    // 4. Revalidate cache (Requirement 1)
+    revalidatePath('/[locale]/app', 'layout')
+    
+    return { success: true }
   } catch (error) {
     console.error(error)
     return { error: 'Failed to delete account' }
   }
-
-  return { success: true }
 }

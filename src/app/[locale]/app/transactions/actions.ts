@@ -1,6 +1,7 @@
 'use server'
 
 import { assertUser } from '@/lib/auth/assertUser'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { Member } from '@/payload/payload-types'
@@ -83,6 +84,7 @@ export async function createTransaction(data: z.infer<typeof createTransactionSc
     return { error: 'An unexpected application error occurred. Our team has been notified.' }
   }
 
+  revalidatePath('/[locale]/app', 'layout')
   redirect('/app/transactions')
 }
 
@@ -116,9 +118,9 @@ export async function deleteTransaction(id: string) {
       collection: 'transactions',
       id,
       data: { status: 'deleted' },
-      overrideAccess: true,
     })
 
+    revalidatePath('/[locale]/app', 'layout')
     return { success: true }
   } catch (error: any) {
     Sentry.captureException(error, {
@@ -200,6 +202,7 @@ export async function updateTransaction(id: string, data: z.infer<typeof createT
       },
     })
 
+    revalidatePath('/[locale]/app', 'layout')
     return { success: true }
   } catch (error: any) {
     Sentry.captureException(error, {
@@ -441,6 +444,7 @@ export async function deleteSelectedTransactions(ids: string[]) {
         ]
       }
     })
+    revalidatePath('/[locale]/app', 'layout')
     return { success: true }
   } catch (error: any) {
     Sentry.captureException(error, {
@@ -469,6 +473,7 @@ export async function nukeAllTransactions() {
       collection: 'transactions',
       where: { owner: { equals: user.id } }
     })
+    revalidatePath('/[locale]/app', 'layout')
     return { success: true }
   } catch (error: any) {
     Sentry.captureException(error, {
