@@ -8,6 +8,7 @@ import { Plus, Lock, PieChart } from 'lucide-react'
 import { redirect } from 'next/navigation'
 import { BudgetActions } from './components/BudgetActions'
 import { getCategoryIcon } from '@/constants/category-icons'
+import { getTranslations } from 'next-intl/server'
 
 export default async function BudgetPage() {
   const payload = await getPayload()
@@ -15,6 +16,8 @@ export default async function BudgetPage() {
   const { user } = await payload.auth({ headers: headersList })
 
   if (!user) return redirect('/login')
+
+  const t = await getTranslations('Miru.budget')
 
   const currentMonth = new Date().toISOString().slice(0, 7) // YYYY-MM
 
@@ -75,12 +78,12 @@ export default async function BudgetPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Budget ({currentMonth})</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('titleMonth', { month: currentMonth })}</h1>
         <div className="flex space-x-2">
           <Link href="?addBudget=true">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Create Budget
+              {t('createBudget')}
             </Button>
           </Link>
         </div>
@@ -93,15 +96,14 @@ export default async function BudgetPage() {
               <div className="rounded-full bg-primary/10 p-4 mb-4">
                 <PieChart className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold">No budgets found</h3>
+              <h3 className="text-lg font-semibold">{t('noBudgetsFound')}</h3>
               <p className="text-sm text-muted-foreground mt-2 max-w-sm">
-                You haven&apos;t set any budgets for this month yet. Create one to start tracking
-                your spending.
+                {t('noBudgetsDesc')}
               </p>
               <Link href="?addBudget=true" className="mt-6">
                 <Button>
                   <Plus className="mr-2 h-4 w-4" />
-                  Create Budget
+                  {t('createBudget')}
                 </Button>
               </Link>
             </CardContent>
@@ -109,7 +111,7 @@ export default async function BudgetPage() {
         ) : (
           budgets.docs.map((budget) => {
             const category = typeof budget.category === 'object' ? budget.category : null
-            const categoryName = category?.name || 'Unknown Category'
+            const categoryName = category?.name || t('unknownCategory')
             const catId = category?.id
             const actualSpent = catId ? spentByCategory[catId] || 0 : 0
 
@@ -146,7 +148,7 @@ export default async function BudgetPage() {
                       </CardTitle>
                       {budget.locked && (
                         <span className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-1">
-                          <Lock className="h-3 w-3" /> Locked
+                          <Lock className="h-3 w-3" /> {t('locked')}
                         </span>
                       )}
                     </div>

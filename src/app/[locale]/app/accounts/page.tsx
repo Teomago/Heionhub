@@ -7,6 +7,7 @@ import { Card, CardHeader, CardContent } from '@/components/display/Card'
 import { Plus } from 'lucide-react'
 import { AccountActions } from './components/AccountActions'
 import type { Account } from '@/payload-types'
+import { getTranslations } from 'next-intl/server'
 
 export default async function AccountsPage() {
   const payload = await getPayload()
@@ -14,6 +15,8 @@ export default async function AccountsPage() {
   const { user } = await payload.auth({ headers: headersList })
 
   if (!user) return null
+
+  const t = await getTranslations('Miru.accounts')
 
   const accountsRaw = await payload.find({
     collection: 'accounts',
@@ -54,22 +57,22 @@ export default async function AccountsPage() {
   )
 
   const typeLabels: Record<string, string> = {
-    checking: 'Checking',
-    savings: 'Savings',
-    cash: 'Cash',
-    investment: 'Investments',
-    credit: 'Credit Cards',
-    other: 'Other Accounts',
+    checking: t('checking'),
+    savings: t('savings'),
+    cash: t('cash'),
+    investment: t('investment'),
+    credit: t('creditCard'),
+    other: t('otherAccounts'),
   }
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Accounts & Net Worth</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <Link href="?addAccount=true">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add Account
+            {t('addAccount')}
           </Button>
         </Link>
       </div>
@@ -77,7 +80,7 @@ export default async function AccountsPage() {
       {/* Net Worth Summary */}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
-          <div className="text-sm font-medium text-muted-foreground">Total Assets</div>
+          <div className="text-sm font-medium text-muted-foreground">{t('totalAssets')}</div>
           <div className="text-2xl font-bold text-green-600">
             {(totalAssets / 100).toLocaleString('en-US', {
               style: 'currency',
@@ -86,7 +89,7 @@ export default async function AccountsPage() {
           </div>
         </div>
         <div className="rounded-lg border bg-card p-4 text-card-foreground shadow-sm">
-          <div className="text-sm font-medium text-muted-foreground">Total Liabilities</div>
+          <div className="text-sm font-medium text-muted-foreground">{t('totalLiabilities')}</div>
           <div className="text-2xl font-bold text-red-600">
             {(totalLiabilities / 100).toLocaleString('en-US', {
               style: 'currency',
@@ -95,7 +98,7 @@ export default async function AccountsPage() {
           </div>
         </div>
         <div className="rounded-lg border bg-card p-4 text-primary-foreground bg-primary shadow-sm">
-          <div className="text-sm font-medium opacity-80">Net Worth</div>
+          <div className="text-sm font-medium opacity-80">{t('netWorth')}</div>
           <div className="text-2xl font-bold">
             {(netWorth / 100).toLocaleString('en-US', {
               style: 'currency',
@@ -107,7 +110,7 @@ export default async function AccountsPage() {
 
       {accounts.length === 0 ? (
         <div className="text-center py-10 text-muted-foreground">
-          No accounts found. Create one to get started.
+          {t('noAccounts')}
         </div>
       ) : (
         Object.entries(groupedAccounts).map(([type, typeAccounts]) => (
@@ -144,14 +147,14 @@ export default async function AccountsPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between text-xs text-muted-foreground">
                             <span>
-                              Debt:{' '}
+                              {t('debt')}
                               {Math.abs(account.balance / 100).toLocaleString('en-US', {
                                 style: 'currency',
                                 currency: account.currency,
                               })}
                             </span>
                             <span>
-                              Available:{' '}
+                              {t('available')}
                               {((account.creditLimit + account.balance) / 100).toLocaleString(
                                 'en-US',
                                 {
@@ -173,7 +176,7 @@ export default async function AccountsPage() {
                             />
                           </div>
                           <p className="text-[10px] text-muted-foreground text-right w-full">
-                            Limit:{' '}
+                            {t('limit')}
                             {(account.creditLimit / 100).toLocaleString('en-US', {
                               style: 'currency',
                               currency: account.currency,

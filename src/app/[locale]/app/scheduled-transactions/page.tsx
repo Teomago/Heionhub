@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/buttons/Button'
 import { Plus } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 
 export default async function ScheduledTransactionsPage() {
   const payload = await getPayload()
@@ -14,6 +15,8 @@ export default async function ScheduledTransactionsPage() {
   if (!user) {
     redirect('/login')
   }
+
+  const t = await getTranslations('Miru.scheduled')
 
   const scheduledTransactionsRaw = await payload.find({
     collection: 'scheduled-transactions',
@@ -25,11 +28,11 @@ export default async function ScheduledTransactionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Recurring Bills & Subscriptions</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <Button asChild>
           <Link href="?addScheduled=true">
             <Plus className="mr-2 h-4 w-4" />
-            Add Scheduled Transaction
+            {t('addSubscription')}
           </Link>
         </Button>
       </div>
@@ -39,7 +42,7 @@ export default async function ScheduledTransactionsPage() {
           <div className="space-y-4">
             {scheduledTransactionsRaw.docs.length === 0 ? (
               <div className="flex justify-center py-10 text-muted-foreground">
-                You have no active scheduled transactions. Add one to track your upcoming bills.
+                {t('noTransactions')}
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -58,7 +61,7 @@ export default async function ScheduledTransactionsPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="text-sm font-medium">
-                          Due: {new Date(sub.nextDueDate).toLocaleDateString()}
+                          {t('due')}{new Date(sub.nextDueDate).toLocaleDateString()}
                         </div>
                         <div className="font-bold text-lg">
                           {amount.toLocaleString('en-US', {

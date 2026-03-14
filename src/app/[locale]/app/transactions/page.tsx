@@ -13,6 +13,7 @@ import { ExportCsvButton } from './components/ExportCsvButton'
 import { TransactionsClientList } from './components/TransactionsClientList'
 import { Where } from 'payload'
 import type { Account, Category } from '@/payload/payload-types'
+import { getTranslations } from 'next-intl/server'
 
 type SearchParams = Promise<{
   description?: string
@@ -32,6 +33,8 @@ export default async function TransactionsPage(props: { searchParams: SearchPara
   if (!user) {
     redirect('/login')
   }
+
+  const t = await getTranslations('Miru.transactions')
 
   // Construct Where query
   const where: Where = {
@@ -142,16 +145,16 @@ export default async function TransactionsPage(props: { searchParams: SearchPara
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <div className="flex items-center gap-3">
           <Link href="/app/categories">
-            <Button variant="outline">Categories</Button>
+            <Button variant="outline">{t('categoriesBtn')}</Button>
           </Link>
           <ExportCsvButton />
           <Link href="?addTx=true">
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Transaction
+              {t('addTransaction')}
             </Button>
           </Link>
         </div>

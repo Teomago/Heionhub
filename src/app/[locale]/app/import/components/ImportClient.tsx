@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { tourSteps } from '@/lib/tour-constants'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { useTranslations } from 'next-intl'
 
 export function ImportClient({
   tutorialUrl,
@@ -22,6 +23,7 @@ export function ImportClient({
 }) {
   const router = useRouter()
   const queryClient = useQueryClient()
+  const t = useTranslations('Miru.import')
   const [parsedData, setParsedData] = useState<ParsedTransactionRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isImporting, setIsImporting] = useState(false)
@@ -68,7 +70,7 @@ export function ImportClient({
         if (result.success) {
           setImportedCount(parsedData.length)
         } else {
-          toast.error(result.error || 'Failed to import transactions.')
+          toast.error(result.error || t('errorToast'))
           setIsImporting(false)
           return
         }
@@ -79,7 +81,7 @@ export function ImportClient({
           const result = await bulkImportTransactions(chunk)
           
           if (!result.success) {
-             toast.error(result.error || `Failed to import batch starting at row ${i + 1}`)
+             toast.error(result.error || t('batchErrorToast', { row: i + 1 }))
              setIsImporting(false)
              return
           }
@@ -95,7 +97,7 @@ export function ImportClient({
       queryClient.invalidateQueries({ queryKey: ['transactions'] })
 
     } catch (err) {
-      toast.error('A critical error occurred during the import process.')
+      toast.error(t('criticalErrorToast'))
       console.error(err)
       setIsImporting(false)
     }
@@ -125,14 +127,10 @@ export function ImportClient({
         >
           <DialogHeader>
             <DialogTitle>
-              {importComplete ? "Import Sequence Complete!" : "Importing Transactions"}
+              {importComplete ? t('importComplete') : t('importingTransactionsTitle')}
             </DialogTitle>
             <DialogDescription>
-              {importComplete ? (
-                 "Your legacy data is safely inserted."
-              ) : (
-                 "Please do not close this window or refresh the browser."
-              )}
+              {importComplete ? t('legacyDataInserted') : t('doNotClose')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center justify-center py-6 gap-4">
@@ -144,15 +142,15 @@ export function ImportClient({
             
             <div className="text-center font-medium">
               {importComplete ? (
-                 <span>Successfully imported {totalRows} transactions.</span>
+                 <span>{t('successfullyImportedTotal', { totalRows })}</span>
               ) : (
-                 <span>Importing {importedCount} of {totalRows} transactions...</span>
+                 <span>{t('importingCount', { importedCount, totalRows })}</span>
               )}
             </div>
 
             {importComplete && (
                <Button onClick={handleFinish} className="w-full mt-4">
-                 Continue to Dashboard
+                 {t('continueToDashboard')}
                </Button>
             )}
           </div>
@@ -165,7 +163,7 @@ export function ImportClient({
       <div className="flex justify-end gap-2" data-tour-step-id="tour-download-btn">
         <Button variant="outline" size="sm" onClick={handleDownloadTemplate}>
           <Download className="mr-2 h-4 w-4" />
-          Download .csv Template
+          {t('downloadTemplate')}
         </Button>
       </div>
 
@@ -187,16 +185,15 @@ export function ImportClient({
             data-tour-step-id={tourSteps.importConfirm}
           >
             <div className="text-sm text-muted-foreground">
-              Please review the rows above. If you notice mismatched columns, you can cancel and
-              upload a corrected file.
+              {t('reviewRows')}
             </div>
             <div className="flex gap-3">
               <Button variant="outline" onClick={() => setParsedData(null)} disabled={isImporting}>
-                Cancel
+                {t('cancel')}
               </Button>
               <Button onClick={executeImport} disabled={isImporting}>
                 <FilePlus2 className="mr-2 h-4 w-4" />
-                Confirm & Import
+                {t('confirmImport')}
               </Button>
             </div>
           </div>

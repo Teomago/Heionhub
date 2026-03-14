@@ -46,7 +46,7 @@ interface AccountFormProps {
 export function AccountForm({ account, onSuccess }: AccountFormProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
-  const t = useTranslations('Miru')
+  const t = useTranslations('Miru.accounts')
   const form = useForm({
     defaultValues: {
       name: account?.name || '',
@@ -86,8 +86,8 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
     <Card className={!account ? 'w-full max-w-lg mx-auto' : 'border-0 shadow-none'}>
       {!account && (
         <CardHeader>
-          <CardTitle>{t('accounts.createAccount')}</CardTitle>
-          <CardDescription>{t('accounts.addAccountDesc')}</CardDescription>
+          <CardTitle>{t('createAccount')}</CardTitle>
+          <CardDescription>{t('addAccountDesc')}</CardDescription>
         </CardHeader>
       )}
       <CardContent className={account ? 'p-0' : ''}>
@@ -110,14 +110,14 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
           >
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>{t('accounts.accountName')}</Label>
+                <Label htmlFor={field.name}>{t('accountName')}</Label>
                 <Input
                   id={field.name}
                   name={field.name}
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="e.g. Main Checking"
+                  placeholder={t('placeholderName')}
                 />
                 {field.state.meta.errors ? (
                   <p className="text-sm text-destructive">{field.state.meta.errors.join(', ')}</p>
@@ -129,7 +129,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
           <form.Field name="type">
             {(field) => (
               <div className="space-y-2">
-                <Label htmlFor={field.name}>{t('accounts.accountType')}</Label>
+                <Label htmlFor={field.name}>{t('accountType')}</Label>
                 <Select
                   value={field.state.value}
                   onValueChange={(val) =>
@@ -139,14 +139,14 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t('accounts.selectType')} />
+                    <SelectValue placeholder={t('selectType')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="checking">{t('accounts.checking')}</SelectItem>
-                    <SelectItem value="savings">{t('accounts.savings')}</SelectItem>
-                    <SelectItem value="credit">{t('accounts.creditCard')}</SelectItem>
-                    <SelectItem value="cash">{t('accounts.cash')}</SelectItem>
-                    <SelectItem value="investment">{t('accounts.investment')}</SelectItem>
+                    <SelectItem value="checking">{t('checking')}</SelectItem>
+                    <SelectItem value="savings">{t('savings')}</SelectItem>
+                    <SelectItem value="credit">{t('creditCard')}</SelectItem>
+                    <SelectItem value="cash">{t('cash')}</SelectItem>
+                    <SelectItem value="investment">{t('investment')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -157,7 +157,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             <form.Field name="currency">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name}>{t('accounts.currency')}</Label>
+                  <Label htmlFor={field.name}>{t('currency')}</Label>
                   <Select
                     value={field.state.value}
                     onValueChange={(val) =>
@@ -165,7 +165,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t('accounts.selectCurrency')} />
+                      <SelectValue placeholder={t('selectCurrency')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="USD">USD</SelectItem>
@@ -181,7 +181,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             <form.Field name="color">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name}>{t('accounts.color')}</Label>
+                  <Label htmlFor={field.name}>{t('color')}</Label>
                   <div className="flex items-center gap-2">
                     <Input
                       id={field.name}
@@ -217,7 +217,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             {(field) => (
               <div className="space-y-2">
                 <Label htmlFor={field.name}>
-                  {account ? 'Current Balance' : 'Initial Balance'}
+                  {account ? t('currentBalance') : t('initialBalance')}
                 </Label>
                 <Input
                   id={field.name}
@@ -238,8 +238,8 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
                 ) : null}
                 <p className="text-xs text-muted-foreground">
                   {form.state.values.type === 'credit'
-                    ? 'Enter the amount you owe as a POSITIVE number (e.g. 500 for $500 debt).'
-                    : 'Enter current balance. Use negative for debt.'}
+                    ? t('creditHelpTextPositive')
+                    : t('balanceHelpText')}
                 </p>
               </div>
             )}
@@ -258,7 +258,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
             >
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name}>{t('accounts.creditLimit')}</Label>
+                  <Label htmlFor={field.name}>{t('creditLimit')}</Label>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -270,10 +270,10 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
                       const val = parseFloat(e.target.value)
                       field.handleChange(isNaN(val) ? undefined : val)
                     }}
-                    placeholder="e.g. 1000"
+                    placeholder={t('placeholderLimit')}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Total credit line available from the bank.
+                    {t('limitHelpText')}
                   </p>
                 </div>
               )}
@@ -281,7 +281,7 @@ export function AccountForm({ account, onSuccess }: AccountFormProps) {
           )}
 
           <Button type="submit" className="w-full" disabled={form.state.isSubmitting}>
-            {form.state.isSubmitting ? 'Saving...' : account ? 'Update Account' : 'Create Account'}
+            {form.state.isSubmitting ? t('saving') : account ? t('updateAccount') : t('createAccount')}
           </Button>
         </form>
       </CardContent>

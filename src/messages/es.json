@@ -107,7 +107,25 @@
       "color": "Color",
       "creditLimit": "Límite de Crédito",
       "addAccount": "Añadir Cuenta",
-      "createAccountOrWallet": "Crear una nueva billetera bancaria."
+      "createAccountOrWallet": "Crear una nueva billetera bancaria.",
+      "title": "Cuentas y Patrimonio Neto",
+      "totalAssets": "Activos Totales",
+      "totalLiabilities": "Pasivos Totales",
+      "netWorth": "Patrimonio Neto",
+      "noAccounts": "No se encontraron cuentas. Crea una para comenzar.",
+      "otherAccounts": "Otras Cuentas",
+      "debt": "Deuda: ",
+      "available": "Disponible: ",
+      "limit": "Límite: ",
+      "placeholderName": "ej. Cuenta Principal",
+      "currentBalance": "Saldo Actual",
+      "initialBalance": "Saldo Inicial",
+      "creditHelpTextPositive": "Ingresa el monto que debes como un número POSITIVO (ej. 500 para $500 de deuda).",
+      "balanceHelpText": "Ingresa el saldo actual. Usa negativo para deuda.",
+      "placeholderLimit": "ej. 1000",
+      "limitHelpText": "Línea de crédito total disponible del banco.",
+      "saving": "Guardando...",
+      "updateAccount": "Actualizar Cuenta"
     },
     "budget": {
       "editBudget": "Editar Presupuesto",
@@ -123,7 +141,12 @@
       "recurrence": "Recurrencia",
       "fixedDuration": "Duración Fija",
       "createBudget": "Crear Presupuesto",
-      "setSpendingLimits": "Establece límites de gastos en tus categorías."
+      "setSpendingLimits": "Establece límites de gastos en tus categorías.",
+      "titleMonth": "Presupuesto ({month})",
+      "noBudgetsFound": "No se encontraron presupuestos",
+      "noBudgetsDesc": "Aún no has establecido presupuestos para este mes. Crea uno para comenzar a rastrear tus gastos.",
+      "unknownCategory": "Categoría Desconocida",
+      "locked": "Bloqueado"
     },
     "categories": {
       "editCategory": "Editar Categoría",
@@ -148,6 +171,13 @@
       "cancel": "Cancelar",
       "editTransaction": "Editar Transacción",
       "makeChanges": "Realiza cambios a tu transacción.",
+      "bulkDeleteTitle": "Eliminar Seleccionados",
+      "nukeAllTitle": "Eliminar Todas las Transacciones",
+      "nukeConfirmText": "¿Estás completamente seguro de que quieres eliminar TODAS las transacciones? Esta acción no se puede deshacer.",
+      "nukeConfirmPlaceholder": "Escribe DELETE para confirmar",
+      "nukeToastSuccess": "Todas las transacciones eliminadas con éxito.",
+      "bulkDeleteToastSuccess": "Transacciones seleccionadas eliminadas con éxito.",
+      "deleting": "Eliminando...",
       "search": "Buscar...",
       "dateRange": "Rango de Fechas",
       "allTime": "Todo el Tiempo",
@@ -176,7 +206,15 @@
       "noCategory": "Sin Categoría",
       "toAccount": "A Cuenta",
       "selectDestination": "Cuenta de destino",
-      "categoriesBtn": "Categorías"
+      "categoriesBtn": "Categorías",
+      "title": "Transacciones",
+      "errorLoading": "Error al cargar las transacciones.",
+      "noTransactionsFound": "No se encontraron transacciones. Intenta ajustar tus filtros.",
+      "uncategorized": "Sin categorizar",
+      "saving": "Guardando...",
+      "updateTransaction": "Actualizar Transacción",
+      "saveTransaction": "Guardar Transacción",
+      "placeholderDesc": "ej. Compras del supermercado"
     },
     "import": {
       "tutorialText": "Esta herramienta te permite subir cientos de transacciones.",
@@ -185,7 +223,23 @@
       "amount": "Monto",
       "type": "Tipo",
       "category": "Categoría",
-      "account": "Cuenta"
+      "account": "Cuenta",
+      "downloadTemplate": "Descargar plantilla .csv",
+      "cancel": "Cancelar",
+      "importing": "Importando...",
+      "confirmImport": "Confirmar e Importar",
+      "reviewRows": "Por favor revisa las filas de arriba. Si notas columnas desajustadas, puedes cancelar y subir un archivo corregido.",
+      "importComplete": "¡Secuencia de importación completada!",
+      "importingTransactionsTitle": "Importando Transacciones",
+      "legacyDataInserted": "Tus datos antiguos se han insertado de forma segura.",
+      "doNotClose": "Por favor no cierres esta ventana ni refresques el navegador.",
+      "successfullyImportedTotal": "Importadas exitosamente {totalRows} transacciones.",
+      "importingCount": "Importando {importedCount} de {totalRows} transacciones...",
+      "continueToDashboard": "Continuar al Panel General",
+      "successToast": "¡Importación exitosa de {count} transacciones en {timeElapsed}s!",
+      "errorToast": "Error al importar transacciones.",
+      "criticalErrorToast": "Ocurrió un error crítico durante el proceso de importación.",
+      "batchErrorToast": "Error al importar el lote a partir de la fila {row}"
     },
     "scheduled": {
       "recordNew": "Registra una suscripción o pago recurrente.",
@@ -202,7 +256,23 @@
       "selectCategory": "Seleccionar categoría",
       "noCategory": "Sin Categoría",
       "addSubscription": "Añadir Suscripción",
-      "formToAdd": "Formulario para añadir recurrentes."
+      "formToAdd": "Formulario para añadir recurrentes.",
+      "title": "Facturas Recurrentes y Suscripciones",
+      "noTransactions": "No tienes transacciones programadas activas. Añade una para rastrear tus próximos pagos.",
+      "due": "Vence: ",
+      "editSubscription": "Editar Suscripción",
+      "placeholderName": "ej. Netflix, Alquiler, Gimnasio",
+      "saving": "Guardando...",
+      "updateSubscription": "Actualizar Suscripción",
+      "saveSubscription": "Guardar Suscripción"
+    },
+    "reports": {
+      "title": "Reportes y Analíticas",
+      "twelveMonthIncome": "Ingresos (12 Meses)",
+      "twelveMonthExpense": "Gastos (12 Meses)",
+      "netTwelveMonth": "Neto (12 Meses)",
+      "monthlySavingsRate": "Tasa de Ahorro Mensual",
+      "currentMonth": "Mes actual"
     }
   }
 }

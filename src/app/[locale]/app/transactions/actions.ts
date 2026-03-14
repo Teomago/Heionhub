@@ -417,3 +417,67 @@ export async function getTransactionsPaginated(
     throw error // Let the error boundary catch it since data-fetching throws rather than returns error strings
   }
 }
+
+export async function deleteSelectedTransactions(ids: string[]) {
+  let authContext
+  try {
+    authContext = await assertUser()
+  } catch (e) {
+    return { error: 'Unauthorized' }
+  }
+  const { user, payload } = authContext
+
+  if (!ids || ids.length === 0) {
+    return { error: 'No transactions selected' }
+  }
+
+  try {
+    await payload.db.deleteMany({
+      collection: 'transactions',
+      where: {
+        and: [
+          { id: { in: ids } },
+          { owner: { equals: user.id } }
+        ]
+      }
+    })
+    return { success: true }
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+      extra: { transactionIds: ids },
+    })
+
+    if (error instanceof APIError && error.isPublic) {
+      return { error: error.message }
+    }
+    return { error: 'Failed to delete selected transactions.' }
+  }
+}
+
+export async function nukeAllTransactions() {
+  let authContext
+  try {
+    authContext = await assertUser()
+  } catch (e) {
+    return { error: 'Unauthorized' }
+  }
+  const { user, payload } = authContext
+
+  try {
+    await payload.db.deleteMany({
+      collection: 'transactions',
+      where: { owner: { equals: user.id } }
+    })
+    return { success: true }
+  } catch (error: any) {
+    Sentry.captureException(error, {
+      user: { id: user?.id || 'anonymous' },
+    })
+
+    if (error instanceof APIError && error.isPublic) {
+      return { error: error.message }
+    }
+    return { error: 'Failed to delete all transactions.' }
+  }
+}

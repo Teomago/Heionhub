@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { SpendingChart } from '@/components/charts/SpendingChart'
 import { IncomeVsExpenseChart } from '@/components/charts/IncomeVsExpenseChart'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/display/Card'
+import { getTranslations } from 'next-intl/server'
 
 export default async function ReportsPage() {
   const payload = await getPayload()
@@ -14,6 +15,8 @@ export default async function ReportsPage() {
   if (!user) {
     redirect('/login')
   }
+
+  const t = await getTranslations('Miru.reports')
 
   // FETCH ACCELERATED ANALYTICS FROM DB AGGREGATIONS
   const { getAnalyticsAggregationsWithCache } = await import('./actions')
@@ -26,16 +29,25 @@ export default async function ReportsPage() {
   const incomeVsExpenseData = analytics.incomeVsExpenseData
   const combinedSpendingChartData = analytics.spendingChartData
 
+  // Calculate net trend for 12 months
+  const netTrend = totalIncome - totalExpense
+
+  // Calculate monthly savings rate
+  const savingsRate =
+    currentMonthIncome > 0
+      ? ((currentMonthIncome - currentMonthExpense) / currentMonthIncome) * 100
+      : 0
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">12 Month Income</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('twelveMonthIncome')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
@@ -45,7 +57,7 @@ export default async function ReportsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">12 Month Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('twelveMonthExpense')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
@@ -55,11 +67,11 @@ export default async function ReportsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net 12 Month</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('netTwelveMonth')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div
-              className={`text-2xl font-bold ${totalIncome - totalExpense >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              className={`text-2xl font-bold ${netTrend >= 0 ? 'text-green-600' : 'text-red-600'}`}
             >
               {(totalIncome - totalExpense).toLocaleString('en-US', {
                 style: 'currency',
@@ -68,20 +80,15 @@ export default async function ReportsPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="bg-primary text-primary-foreground">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Savings Rate</CardTitle>
+            <CardTitle className="text-sm font-medium opacity-80">{t('monthlySavingsRate')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {currentMonthIncome > 0
-                ? Math.round(
-                    ((currentMonthIncome - currentMonthExpense) / currentMonthIncome) * 100,
-                  )
-                : 0}
-              %
+              {savingsRate.toFixed(1)}%
             </div>
-            <p className="text-xs text-muted-foreground">Current month</p>
+            <p className="text-xs opacity-70 mt-1">{t('currentMonth')}</p>
           </CardContent>
         </Card>
       </div>

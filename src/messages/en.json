@@ -107,7 +107,25 @@
       "color": "Color",
       "creditLimit": "Credit Limit",
       "addAccount": "Add Account",
-      "createAccountOrWallet": "Create a new financial account or wallet."
+      "createAccountOrWallet": "Create a new financial account or wallet.",
+      "title": "Accounts & Net Worth",
+      "totalAssets": "Total Assets",
+      "totalLiabilities": "Total Liabilities",
+      "netWorth": "Net Worth",
+      "noAccounts": "No accounts found. Create one to get started.",
+      "otherAccounts": "Other Accounts",
+      "debt": "Debt: ",
+      "available": "Available: ",
+      "limit": "Limit: ",
+      "placeholderName": "e.g. Main Checking",
+      "currentBalance": "Current Balance",
+      "initialBalance": "Initial Balance",
+      "creditHelpTextPositive": "Enter the amount you owe as a POSITIVE number (e.g. 500 for $500 debt).",
+      "balanceHelpText": "Enter current balance. Use negative for debt.",
+      "placeholderLimit": "e.g. 1000",
+      "limitHelpText": "Total credit line available from the bank.",
+      "saving": "Saving...",
+      "updateAccount": "Update Account"
     },
     "budget": {
       "editBudget": "Edit Budget",
@@ -123,7 +141,12 @@
       "recurrence": "Recurrence",
       "fixedDuration": "Fixed Duration",
       "createBudget": "Create Budget",
-      "setSpendingLimits": "Set spending limits on your categories."
+      "setSpendingLimits": "Set spending limits on your categories.",
+      "titleMonth": "Budget ({month})",
+      "noBudgetsFound": "No budgets found",
+      "noBudgetsDesc": "You haven't set any budgets for this month yet. Create one to start tracking your spending.",
+      "unknownCategory": "Unknown Category",
+      "locked": "Locked"
     },
     "categories": {
       "editCategory": "Edit Category",
@@ -147,6 +170,13 @@
       "areYouSure": "Are you sure?",
       "cancel": "Cancel",
       "editTransaction": "Edit Transaction",
+      "bulkDeleteTitle": "Delete Selected",
+      "nukeAllTitle": "Delete All Transactions",
+      "nukeConfirmText": "Are you absolutely sure you want to delete ALL transactions? This action cannot be undone.",
+      "nukeConfirmPlaceholder": "Type DELETE to confirm",
+      "nukeToastSuccess": "Successfully deleted all transactions.",
+      "bulkDeleteToastSuccess": "Successfully deleted selected transactions.",
+      "deleting": "Deleting...",
       "makeChanges": "Make changes to your transaction here.",
       "search": "Search...",
       "dateRange": "Date Range",
@@ -176,7 +206,15 @@
       "noCategory": "No Category",
       "toAccount": "To Account",
       "selectDestination": "Select destination account",
-      "categoriesBtn": "Categories"
+      "categoriesBtn": "Categories",
+      "title": "Transactions",
+      "errorLoading": "Error loading transactions.",
+      "noTransactionsFound": "No transactions found. Try adjusting your filters.",
+      "uncategorized": "Uncategorized",
+      "saving": "Saving...",
+      "updateTransaction": "Update Transaction",
+      "saveTransaction": "Save Transaction",
+      "placeholderDesc": "e.g. Grocery shopping"
     },
     "import": {
       "tutorialText": "This tool allows you to instantly upload hundreds of past transactions.",
@@ -185,7 +223,23 @@
       "amount": "Amount",
       "type": "Type",
       "category": "Category",
-      "account": "Account"
+      "account": "Account",
+      "downloadTemplate": "Download .csv Template",
+      "cancel": "Cancel",
+      "importing": "Importing...",
+      "confirmImport": "Confirm & Import",
+      "reviewRows": "Please review the rows above. If you notice mismatched columns, you can cancel and upload a corrected file.",
+      "importComplete": "Import Sequence Complete!",
+      "importingTransactionsTitle": "Importing Transactions",
+      "legacyDataInserted": "Your legacy data is safely inserted.",
+      "doNotClose": "Please do not close this window or refresh the browser.",
+      "successfullyImportedTotal": "Successfully imported {totalRows} transactions.",
+      "importingCount": "Importing {importedCount} of {totalRows} transactions...",
+      "continueToDashboard": "Continue to Dashboard",
+      "successToast": "Successfully imported {count} transactions in {timeElapsed}s!",
+      "errorToast": "Failed to import transactions.",
+      "criticalErrorToast": "A critical error occurred during the import process.",
+      "batchErrorToast": "Failed to import batch starting at row {row}"
     },
     "scheduled": {
       "recordNew": "Record a new recurring bill or subscription.",
@@ -202,7 +256,23 @@
       "selectCategory": "Select category",
       "noCategory": "No Category",
       "addSubscription": "Add Subscription",
-      "formToAdd": "A form to add new recurring bills."
+      "formToAdd": "A form to add new recurring bills.",
+      "title": "Recurring Bills & Subscriptions",
+      "noTransactions": "You have no active scheduled transactions. Add one to track your upcoming bills.",
+      "due": "Due: ",
+      "editSubscription": "Edit Subscription",
+      "placeholderName": "e.g. Netflix, Rent, Gym",
+      "saving": "Saving...",
+      "updateSubscription": "Update Subscription",
+      "saveSubscription": "Save Subscription"
+    },
+    "reports": {
+      "title": "Reports & Analytics",
+      "twelveMonthIncome": "12 Month Income",
+      "twelveMonthExpense": "12 Month Expenses",
+      "netTwelveMonth": "Net 12 Month",
+      "monthlySavingsRate": "Monthly Savings Rate",
+      "currentMonth": "Current month"
     }
   }
 }

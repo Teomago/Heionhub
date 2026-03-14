@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { access } from '@/payload/utils/access'
+import { afterDeleteCascade } from './hooks/afterDeleteCascade'
 
 export const Members: CollectionConfig = {
   slug: 'members',
@@ -142,5 +143,8 @@ export const Members: CollectionConfig = {
   labels: {
     plural: 'Members',
     singular: 'Member',
+  },
+  hooks: {
+    afterDelete: [afterDeleteCascade],
   },
 }

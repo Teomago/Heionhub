@@ -217,7 +217,7 @@ export function TransactionForm({
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="e.g. Grocery shopping"
+                  placeholder={t('transactions.placeholderDesc')}
                 />
               </div>
             )}
@@ -317,10 +317,10 @@ export function TransactionForm({
 
           <Button type="submit" className="w-full" disabled={form.state.isSubmitting}>
             {form.state.isSubmitting
-              ? 'Saving...'
+              ? t('transactions.saving')
               : initialData
-                ? 'Update Transaction'
-                : 'Save Transaction'}
+                ? t('transactions.updateTransaction')
+                : t('transactions.saveTransaction')}
           </Button>
         </form>
       </CardContent>
