@@ -2,6 +2,9 @@
 
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { Ratelimit } from '@upstash/ratelimit'
+import { Redis } from '@upstash/redis'
+import { headers } from 'next/headers'
 
 export async function verifyInvitation(code: string) {
   const payload = await getPayload({ config })
@@ -13,6 +16,7 @@ export async function verifyInvitation(code: string) {
         equals: code.toUpperCase(),
       },
     },
+    overrideAccess: true,
   })
 
   if (docs.length === 0) {
@@ -22,7 +26,6 @@ export async function verifyInvitation(code: string) {
   const invitation = docs[0]
 
   if (invitation.status === 'used') {
-    // Fetch mock phrase from Global
     const invitationsGlobal = await payload.findGlobal({
       slug: 'invitations',
     })
@@ -38,13 +41,29 @@ export async function verifyInvitation(code: string) {
 }
 
 export async function registerMember(formData: FormData, invitationCode: string, locale: string = 'en') {
-  const payload = await getPayload({ config })
+  // Rate limit: 3 requests per IP per minute
+  if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+    try {
+      const redis = new Redis({
+        url: process.env.KV_REST_API_URL,
+        token: process.env.KV_REST_API_TOKEN,
+      })
+      const headersList = await headers()
+      const ip = headersList.get('x-forwarded-for') ?? '127.0.0.1'
+      const { success: allowed } = await new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(3, '1 m'),
+      }).limit(`register_${ip}`)
 
-  // 1. Verify code (outside transaction — read-only)
-  const verify = await verifyInvitation(invitationCode)
-  if (!verify.success) {
-    return verify
+      if (!allowed) {
+        return { success: false, error: 'RATE_LIMITED', message: 'Too many registration attempts. Please try again later.' }
+      }
+    } catch (err) {
+      console.error('Registration rate limiter failed (Upstash Error):', err)
+    }
   }
+
+  const payload = await getPayload({ config })
 
   const email = formData.get('email') as string
   const password = formData.get('password') as string
@@ -58,13 +77,70 @@ export async function registerMember(formData: FormData, invitationCode: string,
     return { success: false, error: 'PASSWORDS_DO_NOT_MATCH', message: 'Passwords do not match.' }
   }
 
-  // 2. Begin atomic transaction — member creation + code burn must both succeed or both fail
+  // Determine tier based on invitation code presence
+  const hasInvitationCode = invitationCode.trim().length > 0
+  let tier: 'free' | 'premium' = 'free'
+
+  // Locale-based currency: 'es' → COP, else USD
+  const validLocale = locale === 'es' ? 'es' : 'en'
+  const currency = validLocale === 'es' ? 'COP' : 'USD'
+
+  // Begin atomic transaction — all reads and writes happen inside
   const req = { payload } as any
   const transactionID = await payload.db.beginTransaction()
   req.transactionID = transactionID
 
   try {
-    // 3. Create Member (within transaction)
+    // 1. If invitation code provided, verify AND consume it atomically inside the transaction
+    if (hasInvitationCode) {
+      const { docs } = await payload.find({
+        collection: 'invitation-codes',
+        where: {
+          code: { equals: invitationCode.toUpperCase() },
+          status: { equals: 'available' },
+        },
+        overrideAccess: true,
+        req,
+      })
+
+      if (docs.length === 0) {
+        // Code doesn't exist or is already used — reject, do not fallback to free
+        if (transactionID) {
+          await payload.db.rollbackTransaction(transactionID)
+        }
+
+        // Check if code exists but is used (for mock violation message)
+        const { docs: existingDocs } = await payload.find({
+          collection: 'invitation-codes',
+          where: { code: { equals: invitationCode.toUpperCase() } },
+          overrideAccess: true,
+        })
+
+        if (existingDocs.length > 0 && existingDocs[0].status === 'used') {
+          const invitationsGlobal = await payload.findGlobal({ slug: 'invitations' })
+          return {
+            success: false,
+            error: 'MOCK_VIOLATION',
+            message: invitationsGlobal.mockPhrase || 'You dare enter without an invitation?',
+          }
+        }
+
+        return { success: false, error: 'INVALID', message: 'Invalid invitation code.' }
+      }
+
+      // Mark code as used atomically within the transaction
+      await payload.update({
+        collection: 'invitation-codes',
+        id: docs[0].id,
+        data: { status: 'used' },
+        overrideAccess: true,
+        req,
+      })
+
+      tier = 'premium'
+    }
+
+    // 2. Create Member with the determined tier (overrideAccess to ensure tier is not stripped)
     await payload.create({
       collection: 'members',
       data: {
@@ -74,42 +150,22 @@ export async function registerMember(formData: FormData, invitationCode: string,
         secondName,
         lastName,
         secondLastName,
-        currency: 'COP',
-        preferredLocale: locale as 'en' | 'es',
+        currency,
+        preferredLocale: validLocale,
+        tier,
       },
+      overrideAccess: true,
       req,
     })
 
-    // 4. Mark code as used (within SAME transaction)
-    const { docs } = await payload.find({
-      collection: 'invitation-codes',
-      where: {
-        code: {
-          equals: invitationCode.toUpperCase(),
-        },
-      },
-      req,
-    })
-
-    if (docs.length > 0) {
-      await payload.update({
-        collection: 'invitation-codes',
-        id: docs[0].id,
-        data: {
-          status: 'used',
-        },
-        req,
-      })
-    }
-
-    // 5. Commit — both operations succeed atomically
+    // 3. Commit — member creation + code burn (if applicable) succeed atomically
     if (transactionID) {
       await payload.db.commitTransaction(transactionID)
     }
 
     return { success: true }
   } catch (error) {
-    // 6. Rollback — member is NOT created, code is NOT burned
+    // Rollback — member is NOT created, code is NOT burned
     if (transactionID) {
       await payload.db.rollbackTransaction(transactionID)
     }

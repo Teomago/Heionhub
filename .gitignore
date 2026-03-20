@@ -49,4 +49,8 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-/.gemini/docs/
+/.gemini/
+/.agents/specs/
+/.agents/audits/
+/.agents/decisions/
+/.agents/archive/

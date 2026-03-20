@@ -2,6 +2,7 @@
 
 import { getPayload } from '@/lib/payload/getPayload'
 import { getAuthUser } from '@/lib/auth/getAuthUser'
+import { revalidatePath } from 'next/cache'
 
 export async function markTourCompleted() {
   const user = await getAuthUser()
@@ -20,8 +21,7 @@ export async function markTourCompleted() {
     },
   })
 
-  // We intentionally do NOT revalidatePath here because the tour dismissal
-  // is a purely visual state change and we don't want to lag the UI.
+  revalidatePath('/[locale]/app', 'layout')
 }
 
 export async function markImportTourCompleted() {
@@ -40,4 +40,6 @@ export async function markImportTourCompleted() {
       hasCompletedImportTour: true,
     },
   })
+
+  revalidatePath('/[locale]/app', 'layout')
 }

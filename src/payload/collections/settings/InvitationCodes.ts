@@ -1,8 +1,16 @@
 import type { CollectionConfig } from 'payload'
 import crypto from 'crypto'
 
+const isAdminUser = ({ req }: { req: any }) => req.user?.collection === 'users'
+
 export const InvitationCodes: CollectionConfig = {
   slug: 'invitation-codes',
+  access: {
+    create: isAdminUser,
+    read: isAdminUser,
+    update: isAdminUser,
+    delete: isAdminUser,
+  },
   admin: {
     useAsTitle: 'code',
   },

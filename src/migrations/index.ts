@@ -4,6 +4,8 @@ import * as migration_20260311_014355_i18n_tables from './20260311_014355_i18n_t
 import * as migration_20260311_202748_preferred_locale from './20260311_202748_preferred_locale';
 import * as migration_20260316_054717_add_budget_type_field from './20260316_054717_add_budget_type_field';
 import * as migration_20260316_194317_hero_block_updates from './20260316_194317_hero_block_updates';
+import * as migration_20260320_051726_add_tier_to_members from './20260320_051726_add_tier_to_members';
+import * as migration_20260320_064329_add_login_cover_image from './20260320_064329_add_login_cover_image';
 
 export const migrations = [
   {
@@ -34,6 +36,16 @@ export const migrations = [
   {
     up: migration_20260316_194317_hero_block_updates.up,
     down: migration_20260316_194317_hero_block_updates.down,
-    name: '20260316_194317_hero_block_updates'
+    name: '20260316_194317_hero_block_updates',
+  },
+  {
+    up: migration_20260320_051726_add_tier_to_members.up,
+    down: migration_20260320_051726_add_tier_to_members.down,
+    name: '20260320_051726_add_tier_to_members',
+  },
+  {
+    up: migration_20260320_064329_add_login_cover_image.up,
+    down: migration_20260320_064329_add_login_cover_image.down,
+    name: '20260320_064329_add_login_cover_image'
   },
 ];

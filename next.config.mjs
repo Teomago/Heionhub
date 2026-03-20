@@ -47,6 +47,10 @@ const nextConfig = {
         hostname: 'www.heionhub.com',
       },
       {
+        protocol: 'https',
+        hostname: 'cuhvhkkiwmcrkfpzvkfw.storage.supabase.co',
+      },
+      {
         protocol: 'http',
         hostname: 'localhost',
         port: '3000',

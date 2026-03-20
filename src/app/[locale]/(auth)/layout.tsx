@@ -2,9 +2,13 @@ import React from 'react'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { ThemeProvider } from '@/providers/ThemeProvider'
+import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { getTranslations } from 'next-intl/server'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
+import { getCachedGlobal } from '@/modules/common/data'
+import type { SiteSetting } from '@/payload-types'
 import '@/styles/index.css'
 
 export default async function AuthLayout(props: { children: React.ReactNode, params: Promise<{ locale: string }> }) {
@@ -12,6 +16,8 @@ export default async function AuthLayout(props: { children: React.ReactNode, par
   const { locale } = await props.params
   const t = await getTranslations({ locale, namespace: 'Auth' })
   const messages = await getMessages({ locale })
+  const siteSettings = await getCachedGlobal<SiteSetting>('site-settings', 0).catch(() => null)
+  const isMultiLangEnabled = siteSettings?.enableMultiLanguage !== false
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -27,7 +33,11 @@ export default async function AuthLayout(props: { children: React.ReactNode, par
                     {t('backToHome')}
                   </span>
                 </Link>
-                <div className="font-bold text-xl tracking-tight">Heionhub</div>
+                <div className="flex items-center gap-2">
+                  <LanguageSwitcher isMultiLangEnabled={isMultiLangEnabled} />
+                  <ThemeToggle />
+                  <span className="font-bold text-xl tracking-tight pl-2">Heionhub</span>
+                </div>
               </header>
 
               {/* Main Content (Centered) */}

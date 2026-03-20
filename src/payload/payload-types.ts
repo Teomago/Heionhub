@@ -3632,6 +3632,10 @@ export interface Member {
   secondName?: string | null;
   lastName: string;
   secondLastName?: string | null;
+  /**
+   * Account tier. Only admins can modify this field.
+   */
+  tier?: ('free' | 'premium') | null;
   currency: 'USD' | 'EUR' | 'GBP' | 'COP';
   /**
    * Whether the user has completed the intro tour on the dashboard.
@@ -4110,6 +4114,7 @@ export interface MembersSelect<T extends boolean = true> {
   secondName?: T;
   lastName?: T;
   secondLastName?: T;
+  tier?: T;
   currency?: T;
   hasCompletedTour?: T;
   hasCompletedImportTour?: T;
@@ -4464,6 +4469,10 @@ export interface Invitation {
 export interface SiteSetting {
   id: string;
   /**
+   * Cover image displayed on the left side of the login page. Recommended: portrait or square, min 1200px tall.
+   */
+  loginCoverImage?: (string | null) | Media;
+  /**
    * Enable bilingual routing and the frontend Language Switcher.
    */
   enableMultiLanguage: boolean;
@@ -4623,6 +4632,7 @@ export interface InvitationsSelect<T extends boolean = true> {
  * via the `definition` "site-settings_select".
  */
 export interface SiteSettingsSelect<T extends boolean = true> {
+  loginCoverImage?: T;
   enableMultiLanguage?: T;
   defaultLanguage?: T;
   supportedLanguages?: T;

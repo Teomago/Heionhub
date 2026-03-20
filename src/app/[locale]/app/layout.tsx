@@ -17,9 +17,11 @@ import { AccountModal } from './accounts/components/AccountModal'
 import { CategoryModal } from './categories/components/CategoryModal'
 import { BudgetModal } from './budget/components/BudgetModal'
 import { AuthSync } from './components/AuthSync'
+import { WelcomeOverlay } from './components/WelcomeOverlay'
 import { TourProvider, type Tour } from '@/components/ui/tour'
 import { tourSteps } from '@/lib/tour-constants'
 import { markTourCompleted } from '@/app/actions/tour'
+import { isMember } from '@/lib/auth/typeGuards'
 import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 
@@ -105,6 +107,8 @@ export default async function AppLayout(props: { children: React.ReactNode, para
     redirect('/login')
   }
 
+  const memberFirstName = isMember(user) ? (user.firstName || '') : ''
+
   // Fetch data for the global transaction modal
   const accountsReq = payload.find({
     collection: 'accounts',
@@ -160,6 +164,7 @@ export default async function AppLayout(props: { children: React.ReactNode, para
                 }}
               >
                 <AuthSync />
+                <WelcomeOverlay firstName={memberFirstName} />
                 <SidebarLayout isMultiLangEnabled={isMultiLangEnabled}>{children}</SidebarLayout>
                  <Toaster />
                  <React.Suspense fallback={null}>

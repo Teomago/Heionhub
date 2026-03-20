@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { ArrowUpRight, ArrowDownLeft, ArrowRightLeft, CircleHelp } from 'lucide-react'
 import { Button } from '@/components/buttons/Button'
@@ -42,14 +42,14 @@ export function DashboardClient({ initialData }: { initialData: DashboardData })
     return amount.toLocaleString('es-CO', { style: 'currency', currency })
   }
 
-  // We'll set up a query to refetch this exact dataset every 30 seconds
+  const queryClient = useQueryClient()
   const { data: dashboard } = useQuery({
     queryKey: ['dashboard'],
-    // Dashboard data is refreshed via Server Components passing new initialData (Server Actions + router.refresh).
-    // This dummy queryFn satisfies React Query v5's requirement.
-    queryFn: async () => initialData,
-    // We provide the initial data so the page renders instantly on the server without loading states
+    // queryFn reads from the live cache instead of closing over the stale initialData prop.
+    // This prevents window-focus refetches from overwriting setQueryData updates.
+    queryFn: () => queryClient.getQueryData<DashboardData>(['dashboard']) ?? initialData,
     initialData,
+    staleTime: Infinity,
   })
 
   const tour = useTour()

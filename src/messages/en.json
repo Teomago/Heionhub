@@ -84,7 +84,23 @@
     "requestNewLink": "Request New Link",
     "minCharsPlaceholder": "Min. 8 characters",
     "reEnterPlaceholder": "Re-enter your password",
-    "emailPlaceholder": "you@example.com"
+    "emailPlaceholder": "you@example.com",
+    "welcomeBack": "Welcome back.",
+    "createAccount": "Create an account",
+    "alreadyHaveAccount": "Already have an account? Sign in",
+    "registerTitle": "Create your account.",
+    "registerDescription": "Fill in your details to get started. Have an invitation code? Enter it at the bottom for Premium access.",
+    "firstName": "First Name",
+    "secondName": "Second Name",
+    "lastName": "Last Name",
+    "secondLastName": "Second Last Name",
+    "invitationCode": "Invitation Code",
+    "invitationCodeHint": "Leave empty to register as a Free tier user.",
+    "optional": "Optional",
+    "creatingAccount": "Creating account…",
+    "createAccountButton": "Create Account",
+    "registrationFailed": "Registration failed.",
+    "welcomeMessage": "Welcome, {name}."
   },
   "Miru": {
     "accounts": {

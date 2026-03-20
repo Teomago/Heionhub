@@ -10,6 +10,15 @@ export const SiteSettings: GlobalConfig = {
   },
   fields: [
     {
+      name: 'loginCoverImage',
+      type: 'upload',
+      relationTo: 'media',
+      required: false,
+      admin: {
+        description: 'Cover image displayed on the left side of the login page. Recommended: portrait or square, min 1200px tall.',
+      },
+    },
+    {
       name: 'enableMultiLanguage',
       type: 'checkbox',
       defaultValue: true,

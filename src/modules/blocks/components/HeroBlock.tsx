@@ -153,7 +153,7 @@ export function HeroBlock({ heading, subheading, body, links, media, design }: H
         <div className={cn(mediaFirst && 'lg:order-1')}>
           <Media
             resource={media}
-            className="rounded-3xl shadow-2xl ring-1 ring-border/50 rotate-[-1deg] hover:rotate-0 transition-all duration-500"
+            className="rounded-3xl shadow-2xl ring-1 ring-border/50 -rotate-1 hover:rotate-0 transition-all duration-500"
           />
         </div>
       )}

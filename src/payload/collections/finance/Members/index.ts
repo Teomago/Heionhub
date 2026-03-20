@@ -1,7 +1,11 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldAccess } from 'payload'
 
 import { access } from '@/payload/utils/access'
 import { afterDeleteCascade } from './hooks/afterDeleteCascade'
+
+const isAdminUserOnly: FieldAccess = ({ req }) => {
+  return req.user?.collection === 'users'
+}
 
 export const Members: CollectionConfig = {
   slug: 'members',
@@ -97,6 +101,21 @@ export const Members: CollectionConfig = {
     {
       name: 'secondLastName',
       type: 'text',
+    },
+    {
+      name: 'tier',
+      type: 'select',
+      defaultValue: 'free',
+      options: [
+        { label: 'Free', value: 'free' },
+        { label: 'Premium', value: 'premium' },
+      ],
+      access: {
+        update: isAdminUserOnly,
+      },
+      admin: {
+        description: 'Account tier. Only admins can modify this field.',
+      },
     },
     {
       name: 'currency',
